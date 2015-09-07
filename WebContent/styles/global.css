@@ -1,0 +1,98 @@
+
+body {
+	font-family:Arial, Helvetica;
+	font-size:12px;
+}
+table tr td{
+	font-family:Arial, Helvetica;
+	font-size:12px;
+}
+input,select{
+	font-family:Arial, Helvetica;
+	font-size:12px;
+}
+.loginContainer {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	text-align: center;
+}
+.main{
+	font-family: Verdana, Helvetica, Sans-Serif;  
+	font-size: 12px;
+	margin-left: 0;
+	margin-top: 0;
+}
+
+.tablers  tr:nth-child(even) {
+	background: #99ccff
+}
+
+.tablers tr:nth-child(odd) {
+	background: #cccccc
+}
+
+a{ 
+	text-decoration: none; 
+}
+a:HOVER {
+	text-decoration: underline; 
+}
+.hlt td {
+		background-color: yellow;
+		color: black;
+		cursor:default
+	}
+	
+	
+#MenuTable {
+	margin: 0;
+	padding: 0;
+	
+}
+#MenuTable td a {
+	padding: 0 1em;
+	font-family: 'Trebuchet MS',Trebuchet,Helvetica,sans-serif;
+	font-weight:200;
+	font-size: 1.2em;
+	color: #0085c5 !important;
+	border-right: 1px solid #ccc;
+		}
+
+#LastLink {
+		border-right:none !important;
+}
+
+
+#HeaderTable {
+		border-bottom: 1px dashed #ccc;
+		margin-bottom: 0.5em;
+		padding: 0.5em 0;
+	}
+#ContentTR td {
+	padding: 0 0.5em;
+}
+
+#topTitle {
+	padding-right: 0.5em;
+	font-family: 'Trebuchet MS',Trebuchet,Helvetica,sans-serif;
+	font-weight: bold;
+	font-size: 1.2em;
+	color: #0085c5;
+	display: block;
+}
+
+a {
+	color: #3399cc !important;
+}
+a:visited {
+	color: #A04264 !important;
+}
+
+#OrderTable a {
+	color : blue !important;
+}
+
+#OrderTable a:visited {
+	color : #A04264 !important;
+}
