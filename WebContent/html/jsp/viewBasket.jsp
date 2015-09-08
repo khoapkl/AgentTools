@@ -116,14 +116,22 @@
 
 					    int idx = 1;
 						Float totalPrice = new Float(0);
+						Float listPrice = new Float(0);
 				        for (EstoreBasketItem estoreBasketItem : listEstoreBasketItem)
 				        {
-				            Float listPrice = new Float(basketService.getListPrice(estoreBasketItem.getItem_sku()) * 100);
-				            //Float currentPrice = new Float(basketService.getListPrice(estoreBasketItem.getItem_sku()));
-				            if(isCustomer != null)
+				        	if (estoreBasketItem.getItem_sku().contains("WARRANTY"))
 				        	{
-				                List<Float> listValue = checkoutService.utilGetDiscount(customer,estoreBasketItem.getItem_sku(),listPrice,estoreBasketItem.getPlaced_price());
-				                listPrice = listValue.get(1);
+				        		listPrice = estoreBasketItem.getPlaced_price();
+				        	}
+				        	else
+				        	{
+					            listPrice = new Float(basketService.getListPrice(estoreBasketItem.getItem_sku()) * 100);
+					            //Float currentPrice = new Float(basketService.getListPrice(estoreBasketItem.getItem_sku()));
+					            if(isCustomer != null)
+					        	{
+					                List<Float> listValue = checkoutService.utilGetDiscount(customer,estoreBasketItem.getItem_sku(),listPrice,estoreBasketItem.getPlaced_price());
+					                listPrice = listValue.get(1);
+					        	}
 				        	}
 				            listPrice = listPrice /100;
 				            totalPrice += listPrice;

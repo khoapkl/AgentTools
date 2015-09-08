@@ -1,0 +1,81 @@
+-- --------------------------------------------------------------------------------
+-- Routine DDL
+-- Note: comments before and after the routine body will not be stored by the server
+-- --------------------------------------------------------------------------------
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspGetInventoryReport`(
+    IN SelectedPage int,
+  IN PageSize int,
+  OUT TotalRecord int
+)
+BEGIN
+DECLARE StartRecord int;
+DECLARE EndRecord int;
+DECLARE TableOrViewName varchar(500);
+DECLARE ColumnNames varchar(3000);
+DECLARE GroupBy varchar(1000);
+DECLARE SortColumn varchar(255);
+DECLARE JoinClause varchar(255);
+DECLARE WhereClause varchar(255);
+
+SET TableOrViewName = ' estore_inventory ';
+SET ColumnNames = ' category_id, mfg_part_number, short_description, count(item_sku), status ' ;
+SET JoinClause = '';
+SET WhereClause = ' WHERE status LIKE (''Agent%Available'')';
+SET GroupBy = ' GROUP BY category_id, mfg_part_number, short_description, status ';
+
+SET SelectedPage = 1;
+SET PageSize = 50;
+
+SET SortColumn = ' short_description ';
+
+
+DROP TABLE if exists TempTableReport;
+
+-- Create temporary table
+CREATE TEMPORARY TABLE TempTableReport(
+    RowNumber int auto_increment primary key,
+    category_id int,
+    mfg_part_number varchar(50),
+    short_description varchar(250),
+    number_item int,
+    item_status varchar (50) );
+ 
+-- Find first record on selected page
+SET StartRecord = (SelectedPage - 1) * PageSize + 1;
+ 
+-- Find last record on selected page
+SET EndRecord = SelectedPage * PageSize;
+
+-- Build INSERT statement used to populate temporary table
+SET @SQLQuery = CONCAT('INSERT INTO TempTableReport (category_id, mfg_part_number, short_description, number_item, item_status) SELECT category_id, mfg_part_number, short_description, COUNT(item_sku) AS number_item, status AS item_status FROM  ' ,TableOrViewName ,WhereClause ,GroupBy ,'  ORDER BY ' ,SortColumn); 
+
+
+-- Execute statement and populate temp table
+PREPARE stmt1 FROM @SQLQuery;
+EXECUTE stmt1;
+deallocate PREPARE stmt1;
+
+-- Build caculate total record
+SET @SQLQuery = 'SELECT count(RowNumber) FROM TempTableReport into @i';
+PREPARE stmt2 FROM @SQLQuery;
+EXECUTE stmt2;
+deallocate PREPARE stmt2;
+
+SET TotalRecord = @i;
+
+IF SelectedPage = 0 THEN
+    SET @SQLQuery = 'SELECT category_id, mfg_part_number, short_description, number_item , item_status, RowNumber FROM TempTableReport ORDER BY RowNumber ';
+ELSE 
+    SET @SQLQuery = CONCAT('SELECT category_id, mfg_part_number, short_description, number_item , item_status ,RowNumber FROM TempTableReport WHERE RowNumber >= ', CAST(StartRecord AS char(20)) ,' AND RowNumber <= ', CAST(EndRecord AS char(20)) ,' ORDER BY RowNumber ');
+END IF;
+
+PREPARE stmt3 FROM @SQLQuery;
+EXECUTE stmt3;
+deallocate PREPARE stmt3;
+
+-- Delete temporary table
+DROP TABLE if exists TempTableReport;
+
+END

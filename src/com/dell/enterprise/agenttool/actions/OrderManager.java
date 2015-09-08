@@ -35,6 +35,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 
+import com.dell.enterprise.agenttool.DAO.ProductDAO;
 import com.dell.enterprise.agenttool.model.Agent;
 import com.dell.enterprise.agenttool.model.CreditReportOrder;
 import com.dell.enterprise.agenttool.model.Customer;
@@ -49,6 +50,7 @@ import com.dell.enterprise.agenttool.model.OrderPending;
 import com.dell.enterprise.agenttool.model.OrderShopper;
 import com.dell.enterprise.agenttool.model.OrderSummary;
 import com.dell.enterprise.agenttool.model.OrderViewPending;
+import com.dell.enterprise.agenttool.model.Product;
 import com.dell.enterprise.agenttool.model.Summary;
 import com.dell.enterprise.agenttool.services.AuthenticationService;
 import com.dell.enterprise.agenttool.services.CheckoutService;
@@ -56,6 +58,7 @@ import com.dell.enterprise.agenttool.services.CustomerServices;
 import com.dell.enterprise.agenttool.services.OrderServices;
 import com.dell.enterprise.agenttool.util.Constants;
 import com.dell.enterprise.agenttool.util.Converter;
+import com.dell.enterprise.agenttool.model.SummaryInventoryReport;
 
 /**
  * @author linhdo
@@ -219,7 +222,7 @@ public class OrderManager extends DispatchAction
                 totalRecord = order.getTotalRow();
             }
 
-            System.out.println(totalRecord);
+            System.out.println("Value totalRecord: " + String.valueOf(totalRecord));
 
             session.setAttribute(Constants.ORDER_CRITERIA, searchOrder);
             session.setAttribute(Constants.ORDER_LIST_RESULT, mapOrder);
@@ -519,9 +522,10 @@ public class OrderManager extends DispatchAction
             HSSFCellStyle cellStyleAlignRight = wb.createCellStyle();
             cellStyleAlignRight.setAlignment(CellStyle.ALIGN_RIGHT);
 
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
 
             HttpSession session = request.getSession();
 
@@ -564,7 +568,7 @@ public class OrderManager extends DispatchAction
                 cel4Row2.setCellStyle(cellStyleWrapTextBold);
 
                 int rowIdx = 4;
-                DecimalFormat df = new DecimalFormat("0.00");
+                DecimalFormat def = new DecimalFormat("0.00");
                 if (listAllOrderPending.size() > 0)
                 {
                     for (OrderPending report : listAllOrderPending)
@@ -578,7 +582,7 @@ public class OrderManager extends DispatchAction
                         //rowBasket.createCell(2).setCellValue(Constants.FormatCurrency(new Float(report.getTotal_total_pending())));
                         //rowBasket.createCell(2).setCellValue(Double.parseDouble(report.getTotal_total_pending()));
                         //System.out.println(" Data : "+df.format(new Float(report.getTotal_total_pending())));
-                        rowBasket.createCell(2).setCellValue(Double.valueOf(df.format(new Float(report.getTotal_total_pending()))));
+                        rowBasket.createCell(2).setCellValue(Double.valueOf(def.format(new Float(report.getTotal_total_pending()))));
                         rowBasket.getCell(2).setCellType(HSSFCell.CELL_TYPE_NUMERIC);
                         rowBasket.getCell(2).setCellStyle(styleCurrencyFormat);
                         //rowBasket.getCell(2).setCellStyle(cellStyleAlignRight);
@@ -659,6 +663,7 @@ public class OrderManager extends DispatchAction
 
     public final ActionForward searchShopOrder(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request, final HttpServletResponse response) throws Exception
     {
+    	System.out.println("searchShopOrder function");
         String forward = Constants.ORDER_SHOP_RESULT_FOR;
         OrderServices service = new OrderServices();
         HttpSession session = request.getSession();
@@ -777,6 +782,59 @@ public class OrderManager extends DispatchAction
         }
         return mapping.findForward(Constants.VIEW_CREDIT_REPORT);
     }
+    
+    public final ActionForward viewInventoryReport(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request, final HttpServletResponse response) throws Exception
+    {
+        HttpSession session = request.getSession();
+        if (session.getAttribute(Constants.IS_CUSTOMER) == null)
+        {
+            DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+            Date date = new Date();
+            String formatDateToDisplay = dateFormat.format(date);
+            request.setAttribute(Constants.DATE_VIEW_CREDIT_REPORT, formatDateToDisplay);
+        }
+        return mapping.findForward(Constants.VIEW_SUMMARY_INVENTORY_REPORT);
+    }
+    
+    public final ActionForward searchSummaryInventoryReport(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request, final HttpServletResponse response) throws Exception
+    {
+        HttpSession session = request.getSession();
+        if (session.getAttribute(Constants.IS_CUSTOMER) == null)
+        {
+            List<SummaryInventoryReport> listInventoryReport = null;
+//            String datepickerFrom = request.getParameter(Constants.DATAPICKER_FROM);
+//            String datepickerTo = request.getParameter(Constants.DATAPICKER_TO);
+
+            int currentPage = 1;
+            if (request.getParameter("page") != null)
+            {
+                currentPage = Integer.parseInt(request.getParameter("page").toString());
+            }
+            int rowOnPage = Constants.RECORDS_ON_PAGE;
+   
+            
+            OrderServices searchSummaryInventoryReport = new OrderServices();
+            listInventoryReport = searchSummaryInventoryReport.listSearchInventoryReport(currentPage, rowOnPage);
+            
+            int rowCount = searchSummaryInventoryReport.getTotalRecord();
+            int totalPage = (rowCount / rowOnPage) + ((rowCount % rowOnPage) > 0 ? 1 : 0);
+            currentPage =  (totalPage == 0) ?  0 : currentPage;
+            
+            String total = searchSummaryInventoryReport.viewInventoryReport();
+            request.setAttribute(Constants.LIST_SEARCH_SUMMARY_INVENTORY_REPORT, listInventoryReport);
+            request.setAttribute(Constants.VIEW_TOTAL_CREDIT_REPORT_ORDER, total);
+//            request.setAttribute(Constants.DATAPICKER_FROM, datepickerFrom);
+//            request.setAttribute(Constants.DATAPICKER_TO, datepickerTo);
+            
+            //Attribute Paging
+            request.setAttribute(Constants.ATTR_PRODUCT_ROW_COUNT, rowCount);
+            request.setAttribute(Constants.ATTR_PRODUCT_TOTAL_PAGE, totalPage);
+            request.setAttribute(Constants.ATTR_PRODUCT_CURRENT_PAGE, currentPage);
+            request.setAttribute(Constants.ATTR_ROW_ON_PAGE, rowOnPage);
+            
+        }
+        return mapping.findForward(Constants.LIST_SEARCH_SUMMARY_INVENTORY_REPORT);
+    }
 
     public final ActionForward searchCreditReport(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request, final HttpServletResponse response) throws Exception
     {
@@ -847,6 +905,8 @@ public class OrderManager extends DispatchAction
         Map<Integer, OrderDate> mapYear = service.mapYear(year);
         request.setAttribute(Constants.ORDER_YEAR_PARAM, year);
         request.setAttribute(Constants.ORDER_YEAR_RESULT, mapYear);
+        
+        
         return mapping.findForward(forward);
     }
 
@@ -860,6 +920,7 @@ public class OrderManager extends DispatchAction
         List<String> listLaptop = services.getBrandLaptop();
         List<String> listDesktop = services.getBrandDesktop();
         List<String> listWorkstation = services.getBrandWorkstation();
+        List<String> listWarranty = services.getBrandWarranty();
         List<String> listCosmetic = services.getCosmeticGrade();
         request.setAttribute(Constants.ORDER_AGENT_REPORT_VIS, listVis);
         request.setAttribute(Constants.ORDER_AGENT_REPORT_BrandPart, listPart);
@@ -868,6 +929,7 @@ public class OrderManager extends DispatchAction
         request.setAttribute(Constants.ORDER_AGENT_REPORT_BrandLaptop, listLaptop);
         request.setAttribute(Constants.ORDER_AGENT_REPORT_BrandDesktop, listDesktop);
         request.setAttribute(Constants.ORDER_AGENT_REPORT_BrandWorkstation, listWorkstation);
+        request.setAttribute(Constants.ORDER_AGENT_REPORT_BrandWarranty, listWarranty);
         //get data column cometic grade in table agent_report
         request.setAttribute(Constants.ORDER_AGENT_REPORT_COSMETIC, listCosmetic);
         return mapping.findForward(Constants.FORWARD_AGENT_REPORT);
@@ -947,6 +1009,8 @@ public class OrderManager extends DispatchAction
         request.setAttribute(Constants.ORDER_YEAR_PARAM, year);
         request.setAttribute(Constants.ORDER_MONTH_PARAM, month);
         request.setAttribute(Constants.ORDER_MONTH_RESULT, mapMonth);
+        
+        System.out.println("forward Map Month:" + forward);
         return mapping.findForward(forward);
     }
 
@@ -1074,13 +1138,16 @@ public class OrderManager extends DispatchAction
                 if (shipmethod == 0)
                 {
                     shortShipping = "Other: " + listOrderViewPending.getShip_terms();
+                    System.out.println("Value shortShipping 1: " + String.valueOf(shortShipping));
                 }
                 else
                 {
                     OrderViewPending shortOrderViewPending = (OrderViewPending) order.viewOrderViewPendingQuery2(listOrderViewPending.getShip_method());
                     shortShipping = shortOrderViewPending.getDescription();
-
+                    System.out.println("Value shortShipping 2: " + String.valueOf(shortShipping));
                 }
+                
+                
                 
                 
                 request.setAttribute(Constants.ATTR_ORDER_VIEW_PENDING_AGENT_IDENTER, listOverViewPendingQuery1);
@@ -1140,7 +1207,9 @@ public class OrderManager extends DispatchAction
                 	System.out.println(b);
             	}else{
             		OrderServices order = new OrderServices();
+            		System.out.println(ordernumber);
                 	b = order.saveOrderClear(ordernumber, agentclear);
+                	
             	}
                 
             }
@@ -1149,6 +1218,8 @@ public class OrderManager extends DispatchAction
         {
             // TODO: handle exception
         }
+        
+        System.out.println("orderViewPending[Forward]:" + forward);
         
         return mapping.findForward(forward);
     }
@@ -1388,9 +1459,10 @@ public class OrderManager extends DispatchAction
             cellStyleWrapTextBoldAlignRight.setFont(font);
             cellStyleWrapTextBoldAlignRight.setAlignment(CellStyle.ALIGN_RIGHT);
             
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
 
             Row row1 = sheet.createRow((short) 1);
             Cell cel0Row1 = row1.createCell((short) 0);
@@ -1506,6 +1578,99 @@ public class OrderManager extends DispatchAction
         return mapping.findForward(forward);
     }
 
+    public ActionForward exportExcelInventoryReport(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request, final HttpServletResponse response)
+    {
+        String forward = Constants.SHOW_PRINT_INVENTORY_REPORT_ORDER;
+
+        try
+        {
+            List<SummaryInventoryReport> listInventoryReportOrder = null;
+            OrderServices searchInventoryReport = new OrderServices();
+//            String datepickerFrom = request.getParameter(Constants.DATAPICKER_FROM);
+//            String datepickerTo = request.getParameter(Constants.DATAPICKER_TO);
+            listInventoryReportOrder = searchInventoryReport.listSearchInventoryReport(0,0);
+          
+            HSSFWorkbook wb = new HSSFWorkbook();
+            HSSFSheet sheet = wb.createSheet();
+            sheet.setDefaultColumnWidth(17);
+
+            HSSFFont font = (HSSFFont) wb.createFont();
+            font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+
+            HSSFCellStyle cellStyleAlignRight = wb.createCellStyle();
+            cellStyleAlignRight.setAlignment(CellStyle.ALIGN_RIGHT);
+
+            HSSFCellStyle cellStyleWrapTextBold = wb.createCellStyle();
+            cellStyleWrapTextBold.setFont(font);
+
+            HSSFCellStyle cellStyleWrapTextBoldAlignRight = wb.createCellStyle();
+            cellStyleWrapTextBoldAlignRight.setFont(font);
+            cellStyleWrapTextBoldAlignRight.setAlignment(CellStyle.ALIGN_RIGHT);
+            
+            HSSFDataFormat df = wb.createDataFormat();            
+            HSSFCellStyle styleCurrencyFormat = null;
+            styleCurrencyFormat = wb.createCellStyle();
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
+
+
+            Row row0 = sheet.createRow((short) 0);
+            
+            Cell cel0Row0 = row0.createCell((short) 0);
+            cel0Row0.setCellValue("Category ID");
+            cel0Row0.setCellStyle(cellStyleWrapTextBold);
+
+            Cell cel1Row0 = row0.createCell((short) 1);
+            cel1Row0.setCellValue("MFG Part Number");
+            cel1Row0.setCellStyle(cellStyleWrapTextBold);
+
+            Cell cel2Row0 = row0.createCell((short) 2);
+            cel2Row0.setCellValue("Short Description");
+            cel2Row0.setCellStyle(cellStyleWrapTextBold);
+
+            Cell cel3Row0 = row0.createCell((short) 3);
+            cel3Row0.setCellValue("Count");
+            cel3Row0.setCellStyle(cellStyleWrapTextBold);
+            
+            Cell cel4Row0 = row0.createCell((short) 4);
+            cel4Row0.setCellValue("Item Status");
+            cel4Row0.setCellStyle(cellStyleWrapTextBold);
+            
+
+            if (listInventoryReportOrder.size() > 0)
+            {
+                int rowIdx = 1;
+                for (SummaryInventoryReport order : listInventoryReportOrder)
+                {
+                    Row rowBasket = sheet.createRow((short) rowIdx);
+                    
+                    rowBasket.createCell(0).setCellValue(order.getcategory_id());
+                    sheet.autoSizeColumn(0);
+                    rowBasket.createCell(1).setCellValue(order.getmfg_part_number());
+                    sheet.autoSizeColumn(1);
+                    rowBasket.createCell(2).setCellValue(order.getshort_description());
+                    sheet.autoSizeColumn(2);
+                    
+                    rowBasket.createCell(3).setCellValue(order.getitem_count());
+                    rowBasket.getCell(3).setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+                    sheet.autoSizeColumn(3);
+                    
+                    rowBasket.createCell(4).setCellValue(order.getitem_status());
+                    sheet.autoSizeColumn(4);
+                    rowIdx++;
+                }
+            }
+            
+            request.setAttribute("ExcelContent", wb);
+            request.setAttribute("ExcelName", "InventoryReport");
+        }
+        catch (Exception e)
+        {
+            // TODO: handle exception
+        }
+
+        return mapping.findForward(forward);
+    }
+    
     public final ActionForward orderViewPendingSearch(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request, final HttpServletResponse response) throws Exception
     {
         String forward = "";
@@ -1810,5 +1975,4 @@ public class OrderManager extends DispatchAction
         request.setAttribute(Constants.ORDER_NUMBER_PAGE, noPage);
         return mapping.findForward(forward);
     }
-
 }

@@ -175,22 +175,35 @@ public class ShopperManager extends DispatchAction
         {
             String userLevel = (String) request.getSession().getAttribute(Constants.USER_LEVEL);
             Object isCustomer = request.getSession().getAttribute(Constants.IS_CUSTOMER);
+            System.out.println("userLevel:" + userLevel);
+            System.out.println("isCustomer:" + isCustomer);
             if (userLevel != null)
             {
+            	System.out.println("HERE");
                 String shopperId = request.getParameter("shopperId");
+                System.out.println("Value shopperId: " + String.valueOf(shopperId));
+                
                 ShopperManagerService service = new ShopperManagerService();
+                System.out.println("Value service: " + String.valueOf(service));
+                
                 ShopperViewReceipts informationViewBasket= service.getViewReceipts(shopperId);
+                
+                System.out.println("informationViewBasket shopper_id:" + informationViewBasket.getShopper_id());
                 
                 List<ShopperViewReceipts> listViewBack;
                 if (isCustomer!=null && ((Boolean) isCustomer).booleanValue()){
-                	
+                	System.out.println("1");
                 	listViewBack = service.getViewTotal_AgentStore(shopperId, 1);
                 }
                 else {
-                	
+                	System.out.println("2");
                 	listViewBack = service.getViewTotal(shopperId, 1);
+                	
                 }
                 int totalRecord = service.getTotalRecord();
+                System.out.println("Value totalRecord: " + String.valueOf(totalRecord));
+                System.out.println("View Total:" + listViewBack.size());
+                
                 request.setAttribute(Constants.SHOPPER_INFO, informationViewBasket);
                 request.setAttribute(Constants.SHOPPER_VIEW_RECEIPTS, listViewBack);
                 request.setAttribute(Constants.ORDER_TOTAL, totalRecord);
@@ -203,9 +216,10 @@ public class ShopperManager extends DispatchAction
         }
         catch (Exception e)
         {
+        	e.printStackTrace();
             forwardName = Constants.ERROR_PAGE_VIEW;
         }
-
+        System.out.println("FINAL FORWARD NAME (getViewReceipts):" + forwardName);
         return mapping.findForward(forwardName);
     }
 
@@ -622,6 +636,9 @@ public class ShopperManager extends DispatchAction
             String userLevel = (String) request.getSession().getAttribute(Constants.USER_LEVEL);
             if (userLevel != null && !userLevel.equals("C"))
             {
+            	
+            	
+            	
                 ShopperManagerService service = new ShopperManagerService();
                 String mscssid = request.getParameter("mscssid");
                 String item_sku = request.getParameter("item_sku");
@@ -632,6 +649,19 @@ public class ShopperManager extends DispatchAction
                 request.setAttribute(Constants.SHOPPER_INFO, shopper);
                 request.setAttribute(Constants.SHOPPER_ADD_NOTES_LIST_SUBJECT_TYPE, listSubjectType);
                 request.setAttribute(Constants.SHOPPER_ADD_NOTES_LIST_GROUP_SUBJECT, listGroupSubject);
+                
+                //http://localhost:8080/mri_mass/new_shoppers.do?method=getNewShoppersByDay&year=2014&month=1&day=15
+                System.out.println("---------------SUBJECT - NODETYPE - INDEX---------------");
+                for (int i = 0; i < listGroupSubject.size(); i++) {
+					Note a = listGroupSubject.get(i);
+					System.out.format("%25s  %25s  %25s\n", a.getSubject(), a.getNoteType(), a.getIndexKey());
+				}
+                System.out.println("----------------TYPE------------------------");
+                for (int i = 0; i < listSubjectType.size(); i++) {
+					Note b = listSubjectType.get(i);
+					System.out.println(b.getSubject());
+				}
+                
                 request.setAttribute(Constants.ITEM_SKU, item_sku);
                 request.setAttribute(Constants.ORDER_ID_PENDING, order_id);
                 request.setAttribute(Constants.SHOPPER_ID, mscssid);

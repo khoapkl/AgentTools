@@ -264,6 +264,22 @@ public class Converter
         }
         return date;
     }
+    
+    public static java.sql.Date stringToDateSQL(final String date1)
+    {
+    	SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        Date date1Obj = null;
+        try {
+        	date1Obj = dateFormat.parse(date1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        java.sql.Date rs = null;
+        if (date1Obj != null){
+        	rs = new java.sql.Date(date1Obj.getTime());
+        }
+        return rs;
+    }
 
     public static String dateDBToDate(final Date str)
     {

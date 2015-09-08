@@ -89,6 +89,7 @@ if (request.getAttribute("EXIST_USER") != null)
 				</SELECT>
 				</font></td>
 			</tr>
+			<tr>
 				<td>&nbsp;</td>
 				<td><font FACE="Arial, Helvetica" size="2">User Type</font></td>
 				<td><font FACE="Arial, Helvetica" size="2">
@@ -105,6 +106,18 @@ if (request.getAttribute("EXIST_USER") != null)
 				<OPTION value="1">YES</OPTION>
 				</SELECT>
 				</font></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td><font FACE="Arial, Helvetica" size="2">Login Count</font></td>
+				<td><font FACE="Arial, Helvetica" size="2">
+				<input type="text"  name="mngLoginCount" ID="mngLoginCount" size="8" MAXLENGTH="20" value="" >
+				</font></td>
+				<td>&nbsp;</td>
+				<td><font FACE="Arial, Helvetica" size="2"></font></td>
+				<td><font FACE="Arial, Helvetica" size="2">
+				</font></td>	
+			</tr>
 			<tr>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
@@ -308,7 +321,8 @@ function submitAgent()
 	var mngUserLevel = $('#mngUserLevel').val();
 	var mngIsActive = $('#mngIsActive').val();
 	var mngUserType = $('#mngUserType').val();
-	var mngIsReport = $('#mngIsReport').val();		
+	var mngIsReport = $('#mngIsReport').val();
+	var mngLoginCount = $('#mngLoginCount').val();		
 	
 	$.ajax({
 		url : "agent_setup.do",
@@ -324,7 +338,8 @@ function submitAgent()
 			 mngUserLevel : mngUserLevel,
 			 mngIsActive : mngIsActive,
 			 mngUserType : mngUserType,
-			 mngIsReport : mngIsReport
+			 mngIsReport : mngIsReport,
+			 mngLoginCount : mngLoginCount
 		},
 		dataType : 'html',
 		async : true,
@@ -360,7 +375,8 @@ function updateAgent()
 	var mngUserLevel = $('#mngUserLevel').val();
 	var mngIsActive = $('#mngIsActive').val();
 	var mngUserType = $('#mngUserType').val();
-	var mngIsReport = $('#mngIsReport').val();		
+	var mngIsReport = $('#mngIsReport').val();
+	var mngLoginCount = $('#mngLoginCount').val();		
 	
 	$.ajax({
 		url : "agent_setup.do",
@@ -377,7 +393,8 @@ function updateAgent()
 			 mngUserLevel : mngUserLevel,
 			 mngIsActive : mngIsActive,
 			 mngUserType : mngUserType,
-			 mngIsReport : mngIsReport
+			 mngIsReport : mngIsReport,
+			 mngLoginCount : mngLoginCount
 		},
 		dataType : 'html',
 		async : true,

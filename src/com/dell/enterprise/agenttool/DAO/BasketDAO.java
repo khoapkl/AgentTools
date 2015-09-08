@@ -144,6 +144,8 @@ public class BasketDAO
                 orderRow.setCc_expmonth(Constants.convertValueEmpty(rs.getString("cc_expmonth")));
                 orderRow.setCc_expyear(Constants.convertValueEmpty(rs.getString("cc_expyear")));
                 orderRow.setEpp_id(Constants.convertValueEmpty(rs.getString("epp_id")));
+                orderRow.setDiscount_type(rs.getInt("discount_type"));
+                orderRow.setDiscount_value(rs.getFloat("discount_value"));
             }
 
         }
@@ -630,6 +632,57 @@ public class BasketDAO
         return flag;
     }
 
+    public int updateBasketDiscount(int discount_type, Float discount_amt, String shopper_id, String order_number)
+    {
+        int flag = 0;
+        Timestamp timestampModified = Timestamp.valueOf(Constants.dateNow(Constants.DATE_FORMAT_NOW));
+        try
+        {
+            LOGGER.info("Execute BasketDAO : function updatePromotionCodeBasketItem");
+            DAOUtils daoUtil = DAOUtils.getInstance();
+            conn = daoUtil.getConnection();
+            String sql = daoUtil.getString("checkout.update.discount.basket.item");
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, discount_type);
+            pstmt.setTimestamp(2, timestampModified);
+            pstmt.setFloat(3, discount_amt);
+            pstmt.setString(4, shopper_id);
+            pstmt.setString(5, order_number);
+
+            flag = pstmt.executeUpdate();
+        }
+        catch (Exception e)
+        {
+            LOGGER.info("Error Execute BasketDAO : function updatePromotionCodeBasketItem");
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (rs != null)
+                {
+                    rs.close();
+                }
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (conn != null)
+                {
+                    conn.close();
+                }
+            }
+            catch (SQLException sqlE)
+            {
+                LOGGER.info("Error Execute BasketDAO : function updatePromotionCodeBasketItem - SQLException");
+                sqlE.printStackTrace();
+            }
+        }
+        return flag;
+    }
+    
     public EppPromotionRow getEppPromotionRow(String epp_id)
     {
         EppPromotionRow eppPromotionRow = new EppPromotionRow();

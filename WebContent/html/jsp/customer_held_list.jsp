@@ -54,9 +54,9 @@
 			<td width="10%" valign="BOTTOM" align="LEFT"><b>Order</b></td>
 			<td width="10%" valign="BOTTOM" align="LEFT"><b>Modified</b></td>
 			<td width="15%" valign="BOTTOM" align="LEFT"><b>Ship to Name</b></td>
-			<td width="3%" valign="BOTTOM" align="LEFT" nowrap="nowrap"><b>Items
-			Held</b></td>
+			<td width="3%" valign="BOTTOM" align="LEFT" nowrap="nowrap"><b>Items Held</b></td>
 			<td width="10%" valign="BOTTOM" align="right" ><b>Order Total</b></td>
+			<td width="10%" valign="BOTTOM" align="right" ><b>Cancel</b></td>
 		</tr>
 		<%	
     for (OrderHeld orderHeld : mapOrderHeld) {

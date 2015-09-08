@@ -135,6 +135,7 @@ public class OrderHeader implements Serializable
     private BigDecimal tax_total;
     private BigDecimal tax_included;
     private BigDecimal total_total;
+    private BigDecimal warranty_total;
     
     private Float weight;
 
@@ -1265,6 +1266,23 @@ public class OrderHeader implements Serializable
         total_total = totalTotal;
     }
 
+    /**
+     * @return the warranty_total
+     */
+    public BigDecimal getWarranty_total()
+    {
+        return warranty_total;
+    }
+
+    /**
+     * @param warrantyTotal
+     *            the total_total to set
+     */
+    public void setWarranty_total(BigDecimal warrantyTotal)
+    {
+        warranty_total = warrantyTotal;
+    }
+    
     /**
      * @return the weight
      */

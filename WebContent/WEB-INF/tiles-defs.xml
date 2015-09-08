@@ -12,6 +12,16 @@
 		<put name="body" value="" />
 		<put name="footer" value="/html/default-footer.jsp" />
 	</definition>
+	<definition name="agenttools.securitySetup" extends="agenttools.layout">
+		<put name="body" value="/html/jsp/security_setup.jsp" />
+	</definition>
+	
+	<definition name="agenttools.changePassword" extends="agenttools.layout">
+		<put name="menu" value="" />
+		<put name="title" value="" />
+		<put name="body" value="/html/jsp/change_password.jsp" />
+		<put name="footer" value="" />
+	</definition>
 	
 	<definition name="agenttools.order" path="/html/template.jsp">
 		<put name="header" value="/html/default-header.jsp" />
@@ -184,6 +194,9 @@
      <put name="body" value="/html/jsp/credit_report.jsp" />
      
     </definition>   
+    <definition name="agenttools.view.inventory.report.order" extends="agenttools.order">
+     <put name="body" value="/html/jsp/summary_inventory_report.jsp" />
+    </definition>  
     <definition name="agenttools.forward.agent.report" extends="agenttools.order">
      <put name="body" value="/html/jsp/agent_report.jsp" />
     </definition>  
@@ -253,5 +266,46 @@
 	<definition name="agenttools.shopper.edit.expiration" extends="agenttools.order">
 		<put name="body" value="/html/jsp/shopper_commission.jsp" />
 	</definition>   
+	
+	
+	
+	
+	<!-- MASS -->
+	
+	<definition name="mass.tiles.layout" path="/html/jsp/mass/tiles/massTemplate.jsp">
+		<put name="header" value="/html/jsp/mass/tiles/header.jsp" />
+		<put name="menu" value="" />
+		<put name="title" value="" />
+		<put name="footer" value="/html/default-footer.jsp" />
+	</definition>
+	
+	<definition name="mass.tiles.view.default.page" extends="mass.tiles.layout">
+		<put name="titleBrowser" type="string" value="Mass master page" />
+		<put name="body" value="/html/jsp/mass/massHomePage.jsp" />
+	</definition>
+	
+	<definition name="mass.tiles.view.import.incoming.page" extends="mass.tiles.layout">
+		<put name="titleBrowser" type="string" value="Product Excel Templates" />
+		<put name="body" value="/html/jsp/mass/importData.jsp" />
+		<put name="breadcrumb" value="/html/jsp/mass/tiles/breadcrumb.jsp" />
+	</definition>
+	
+	<definition name="mass.tiles.view.import.receiving.page" extends="mass.tiles.layout">
+		<put name="titleBrowser" type="string" value="Receiving File" />
+		<put name="body" value="/html/jsp/mass/importData.jsp" />
+		<put name="breadcrumb" value="/html/jsp/mass/tiles/breadcrumb.jsp" />
+	</definition>
+	
+	
+	<definition name="mass.tiles.view.receiving.page" extends="mass.tiles.layout">
+		<put name="titleBrowser" type="string" value="Receiving Queue" />
+		<put name="body" value="/html/jsp/mass/listProduct.jsp" />
+	</definition>
+	
+	<definition name="mass.tiles.view.inventory.page" extends="mass.tiles.layout">
+		<put name="titleBrowser" type="string" value="Inventory List" />
+		<put name="body" value="/html/jsp/mass/listProduct.jsp" />
+	</definition>
+	
 	
 </tiles-definitions>

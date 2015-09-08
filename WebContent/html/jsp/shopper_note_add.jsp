@@ -89,7 +89,7 @@ function populateTopicPre(inForm, selected) {
     }
 
     eval("inForm.topicPre.options[0]=" + "new Option" + "('Select...')");
-
+	console.log("NoteType:", notetype, " - Selected:", selected);
     count = 1;
     for (var i=0; i < index; i++) {
         //alert(notetype[i]);
@@ -104,9 +104,9 @@ function populateTopicPre(inForm, selected) {
     }
 }
 
-var notetype = new MakeArray(30);
-var subject  = new MakeArray(30);
-var ids      = new MakeArray(30);
+var notetype = new MakeArray(100);
+var subject  = new MakeArray(100);
+var ids      = new MakeArray(100);
 
 var index = 0;
 var cmmnd = 1;
@@ -160,6 +160,7 @@ Subject:
   }}
 
 	%>
+	console.log("NoteType init:", notetype);
 	  </script>
 	
 <tr><td>

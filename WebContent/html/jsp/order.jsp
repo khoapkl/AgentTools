@@ -30,9 +30,10 @@ if(isCustomer==null || !((Boolean)isCustomer).booleanValue()){
         	<%
         	if(userLevel!=null ){
         	%>
-        	<tbody><tr><th bgcolor="#e0e0e0" align="left" colspan="2"> Admin Tools </th></tr>        	
+        	<tbody><tr><th bgcolor="#e0e0e0" align="left" colspan="2"> Admin Tools </th></tr>       
+        	<%if(isAdmin){ %> 	
         	<tr><td>&nbsp;</td><th align="left"> <a href="order_db.do?method=listAllOrderPending"> All Pending Orders </a>    </th></tr>
-        	<%if(isAdmin){ %>
+        	
         	<tr><td>&nbsp;</td><th align="left"> <a href="order_db.do?method=listDiscountPercentage"> Settings </a>    </th></tr>
         	<%} %>
         	<tr><td>&nbsp;</td><th align="left"> 
@@ -41,6 +42,7 @@ if(isCustomer==null || !((Boolean)isCustomer).booleanValue()){
         		
         		
         	</th></tr>
+        	<tr><td>&nbsp;</td><th align="left"><a href="order_db.do?method=viewInventoryReport"> Inventory Summary Report </a></th></tr>
         	<tr><td>&nbsp;</td><th align="left"> 
         		
         		<a href="order_db.do?method=agentReport"> Orders Summary Report </a>	    
@@ -54,6 +56,7 @@ if(isCustomer==null || !((Boolean)isCustomer).booleanValue()){
 			%>
 			   
 				<tr><td>&nbsp;</td><th align="left"> <a href="agent_setup.do">  Agent Setup </a>    </th></tr>
+				<tr><td>&nbsp;</td><th align="left"> <a href="security_setup.do?method=securitySetup">  Security Settings </a>    </th></tr>
         
 			<%	
 				}

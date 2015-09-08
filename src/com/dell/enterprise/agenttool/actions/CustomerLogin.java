@@ -31,7 +31,7 @@ public class CustomerLogin extends DispatchAction
      * {@inheritDoc}
      */
     public ActionForward execute(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request, final HttpServletResponse response)
-    {
+    {  LOGGER.info("thiendk");
         ActionForward forward;
         HttpSession session = request.getSession();
 
@@ -80,12 +80,14 @@ public class CustomerLogin extends DispatchAction
     public final ActionForward login(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request, final HttpServletResponse response) throws Exception
     {
         String forward;
+        LOGGER.info("thiendk");
 
         try
         {
             HttpSession session = request.getSession();
 
             String userName = request.getParameter("userName");
+            LOGGER.info("thiendk"+userName);
             String password = request.getParameter("password");
             if (!userName.equals("") && !password.equals(""))
             {
@@ -93,7 +95,7 @@ public class CustomerLogin extends DispatchAction
                 Agent agent = service.login(userName, password);
 
                 if (agent != null)
-                {
+                {   
                     forward = Constants.LOGIN_SUCCESS;
                     session.setAttribute(Constants.AGENT_INFO, agent);
                     session.setAttribute(Constants.SHOPPER_ID, agent.getShopperId());

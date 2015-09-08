@@ -96,6 +96,17 @@
 				</SELECT>
 				</font></td>
 			<tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td><font FACE="Arial, Helvetica" size="2">Login Count</font></td>
+				<td><font FACE="Arial, Helvetica" size="2">
+				<input type="text"  name="mngLoginCount" ID="mngLoginCount" size="8" MAXLENGTH="20" value="<%=agent.getLoginCount()%>" >
+				</font></td>
+				<td>&nbsp;</td>
+				<td><font FACE="Arial, Helvetica" size="2"></font></td>
+				<td><font FACE="Arial, Helvetica" size="2">
+				</font></td>	
+			</tr>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 			<td><input style="width:100;" type="submit" value="Update" name="button" onclick="validate(1); return false;"></td>

@@ -46,7 +46,7 @@ import com.dell.enterprise.agenttool.model.OrderShopper;
 import com.dell.enterprise.agenttool.model.OrderSummary;
 import com.dell.enterprise.agenttool.model.OrderViewPending;
 import com.dell.enterprise.agenttool.model.Summary;
-
+import com.dell.enterprise.agenttool.model.SummaryInventoryReport;
 //
 // IMPORTS
 // NOTE: Import specific classes without using wildcards.
@@ -170,6 +170,20 @@ public class OrderServices
         return dao.viewCreditReport(fromDay, toDay);
     }
 
+    public List<SummaryInventoryReport> listSearchInventoryReport(final int selectedPage, final int pageSize) throws Exception
+    {
+        OrderDAO dao = new OrderDAO();
+        List<SummaryInventoryReport> listSearchInventoryReport  = dao.searchInventoryReport(selectedPage,pageSize);
+        this.setTotalRecord(dao.getTotalRecord());
+        return listSearchInventoryReport;
+    }
+    
+    public String viewInventoryReport() throws Exception
+    {
+        OrderDAO dao = new OrderDAO();
+        return dao.viewInventoryReport();
+    }
+    
     public DiscountAdjustment listDiscountPercentage() throws Exception
     {
         OrderDAO dao = new OrderDAO();
@@ -365,6 +379,11 @@ public class OrderServices
         return dao.getBrandLaptop();
     }
 
+    public List<String> getBrandWarranty() throws Exception
+    {
+        OrderDAO dao = new OrderDAO();
+        return dao.getBrandWarranty();
+    }
     
     //get cosmetic grade in table agent report
     public List<String> getCosmeticGrade() throws Exception
@@ -387,6 +406,7 @@ public class OrderServices
     
     public boolean saveOrderClear(String ordernumber,String agentclear){
     	OrderDAO dao = new OrderDAO();
+    	System.out.println(agentclear);
     	return dao.saveOrderClearLog(ordernumber, agentclear);
     }
 

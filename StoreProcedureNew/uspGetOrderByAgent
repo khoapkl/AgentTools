@@ -1,0 +1,71 @@
+-- --------------------------------------------------------------------------------
+-- Routine DDL
+-- Note: comments before and after the routine body will not be stored by the server
+-- --------------------------------------------------------------------------------
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspGetOrderByAgent`(
+    IN StartDate varchar(255),
+    IN EndDate varchar(255),
+    IN AgentID varchar(255),
+    IN SelectedPage int,
+    IN PageSize int,
+    OUT TotalRecord int
+)
+BEGIN
+DECLARE StartRecord int;
+DECLARE EndRecord int;
+DECLARE TableOrViewName varchar(500);
+DECLARE ColumnNames varchar(3000);
+DECLARE GroupBy varchar(1000);
+DECLARE SortColumn varchar(255);
+DECLARE WhereClause varchar(255);
+
+SET ColumnNames = 'T1.OrderNumber, T1.AgentIDEnter, T1.ship_to_name, T1.ship_to_company, T1.shopper_id, T1.createdDate, T1.total_total, T1.total_disc / T1.total_list * 100 AS discount_perc, T1.total_disc, COUNT(T2.OrderNumber) AS items_sold,T1.byAgent,(select adminusers.UserName from adminusers where adminusers.agent_id = T3.agent_id) AS agentName';
+SET TableOrViewName = 'orderheader T1 INNER JOIN orderline T2 ON T1.OrderNumber = T2.OrderNumber  INNER JOIN contactinfo T3 ON T1.shopper_id = T3.shopper_id ';
+SET WhereClause = CONCAT('T1.createdDate BETWEEN ''', StartDate ,''' AND ''', EndDate ,''' AND T1.orderstatus <> ''CANCELED'' AND (T1.AgentIDEnter = ', AgentID ,') AND total_total > 0 AND T2.item_sku NOT LIKE ''FREE%''');
+SET GroupBy = 'GROUP BY T1.OrderNumber, T1.AgentIDEnter, T1.ship_to_name, T1.ship_to_company, T1.shopper_id, T1.createdDate, T1.total_total, T1.total_disc, T1.total_list, T2.OrderNumber,T1.byAgent,T3.agent_id';
+SET SortColumn = 'T1.createdDate DESC';
+DROP TABLE if exists TempTableAgent;
+-- Create temporary table
+CREATE temporary TABLE TempTableAgent(
+    RowNumber int auto_increment primary key,
+    OrderNumber varchar(100) );
+ 
+-- Find first record on selected page
+SET StartRecord = (SelectedPage - 1) * PageSize + 1;
+ 
+-- Find last record on selected page
+SET EndRecord = SelectedPage * PageSize;
+ 
+-- Check if there is WHERE clause
+IF WhereClause <>  '' THEN
+    SET WhereClause = CONCAT(' WHERE ' ,WhereClause);
+  END IF;
+  
+-- Build caculate total record
+SET @SQLQuery = CONCAT('SELECT COUNT(OrderNumber) FROM (SELECT T1.OrderNumber FROM ', TableOrViewName, WhereClause, GroupBy ,') tb1 into @i');
+PREPARE stmt1 FROM @SQLQuery;
+EXECUTE stmt1;
+deallocate PREPARE stmt1;
+
+SET TotalRecord = @i;
+
+-- Build INSERT statement used to populate temporary table
+SET @SQLQuery = CONCAT('INSERT TempTableAgent (OrderNumber) SELECT T1.OrderNumber FROM ' ,TableOrViewName ,WhereClause ,GroupBy ,'  ORDER BY ' ,SortColumn);
+-- Execute statement and populate temp table
+PREPARE stmt2 FROM @SQLQuery;
+EXECUTE stmt2;
+deallocate PREPARE stmt2;
+
+-- Build SQL query to return only selected page
+SET @SQLQuery = CONCAT('SELECT RowNumber,', ColumnNames ,' FROM ', TableOrViewName ,' JOIN TempTableAgent tmp ON tmp.OrderNumber = T1.OrderNumber WHERE RowNumber >= ', StartRecord ,' AND RowNumber <= ', EndRecord, ' ', GroupBy, ',RowNumber ORDER BY RowNumber ');
+
+PREPARE stmt3 FROM @SQLQuery;
+EXECUTE stmt3;
+deallocate PREPARE stmt3;
+
+-- Delete temporary table
+DROP TABLE if exists TempTableAgent;
+
+END

@@ -1,6 +1,9 @@
 package com.dell.enterprise.agenttool.model;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.TimerTask;
 
 /**
  * @author hungnguyen
@@ -30,9 +33,38 @@ public class Agent implements Serializable
     private String agentEmail;
     private int totalRow;
     private boolean report; 
+    private int loginCount;
+	private Timestamp passwordDate;
+	private Timestamp loginTime;
     
+
+	public Timestamp getPasswordDate() {
+		return passwordDate;
+	}
+
+	public void setPasswordDate(Timestamp passwordDate) {
+		this.passwordDate = passwordDate;
+	}
     
-    public boolean isReport() {
+    public Timestamp getLoginTime() {
+		return loginTime;
+	}
+
+	public void setLoginTime(Timestamp loginTime) {
+		this.loginTime = loginTime;
+	}
+
+
+    
+    public int getLoginCount() {
+		return loginCount;
+	}
+
+	public void setLoginCount(int loginCount) {
+		this.loginCount = loginCount;
+	}
+
+	public boolean isReport() {
 		return report;
 	}
 

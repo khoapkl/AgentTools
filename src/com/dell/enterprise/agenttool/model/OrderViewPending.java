@@ -126,11 +126,18 @@ public class OrderViewPending
     private String agentName;
     private Short byAgent;
     private String cosmetic_grade;
+    private String ordered_qty;
     
     
+    public String getOrderedQty()
+    {
+    	return ordered_qty;
+    }
     
-    
-    
+    public void setOrderedQty(String orderQty)
+    {
+    	ordered_qty = orderQty;
+    }
     
     /**
      * @return the discounted_price

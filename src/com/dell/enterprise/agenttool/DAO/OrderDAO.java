@@ -36,7 +36,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +46,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Logger;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.dell.enterprise.agenttool.model.Agent;
 import com.dell.enterprise.agenttool.model.Avg_mhz;
@@ -69,6 +73,7 @@ import com.dell.enterprise.agenttool.util.Converter;
 import com.dell.enterprise.agenttool.util.DAOUtils;
 import com.dell.enterprise.agenttool.util.OrderDAOImpl;
 import com.sun.xml.internal.bind.v2.TODO;
+import com.dell.enterprise.agenttool.model.SummaryInventoryReport;
 
 //
 // IMPORTS
@@ -353,17 +358,22 @@ public class OrderDAO
             conn = daoUtil.getConnection();
             String queryOrder = OrderDAOImpl.filterOrderQueryPage(criteria);
             String queryWhere = OrderDAOImpl.filterOrderQuery(queryOrder, criteria);
-            System.out.println(queryOrder);
-            System.out.println(queryWhere);
+            
             String query = daoUtil.getString("sql.orderAll.paging.sp");
+            
             cstmt = conn.prepareCall(query);
+            
             cstmt.setString(1, queryOrder);
             cstmt.setInt(2, page);
             cstmt.setInt(3, record);
             cstmt.setString(4, queryWhere);
+            
             cstmt.registerOutParameter(5, java.sql.Types.INTEGER);
+            
+            System.out.println("CSTMT searchOrderCriteria:" + cstmt);
             rs = cstmt.executeQuery();
-
+            
+            
             while (rs.next())
             {
                 Order order = new Order();
@@ -612,10 +622,10 @@ public class OrderDAO
      */
     public List<OrderHeld> orderHeldMap(final int page, Agent agent, String type) throws Exception
     {
-        List<OrderHeld> orderHeldMap = new ArrayList<OrderHeld>();
+    	List<OrderHeld> orderHeldMap = new ArrayList<OrderHeld>();
         try
         {
-            LOGGER.info("Execute OrderDAO - function orderHeldMap");
+            LOGGER.info("Execute OrderDAO - function orderHeldMap AAAAA");
             DAOUtils daoUtil = DAOUtils.getInstance();
             conn = daoUtil.getConnection();
 
@@ -623,12 +633,13 @@ public class OrderDAO
             cstmt = conn.prepareCall(query);
             cstmt.setInt(1, page);
             cstmt.setInt(2, record);
-
+            System.out.println("SQL:" + cstmt);
             if (agent.isAdmin() && (type.equals("AGENT") || type.equals("CUSTOMER")))
             {
                 System.out.println("A");
                 cstmt.setString(3, type);
                 cstmt.setString(4, "");
+                System.out.println("SQL2:" + cstmt);
             }
             else if (!agent.isAdmin() && type.equals("AGENT"))
             {
@@ -642,20 +653,26 @@ public class OrderDAO
                 cstmt.setString(3, "BYCUSTOMER");
                 cstmt.setString(4, Integer.toString(agent.getAgentId()));
             }
-
+            System.out.println("STMT TEST BEFORE:" + cstmt);
             cstmt.registerOutParameter(5, java.sql.Types.INTEGER);
+            System.out.println("STMT TEST:" + cstmt);
             rs = cstmt.executeQuery();
+            System.out.println("Execute OK");
+            
+            int count = 0;
+            
             while (rs.next())
             {
+            	count++;
                 OrderHeld orderHeld = new OrderHeld();
-                orderHeld.setId(rs.getInt(1));
-                orderHeld.setShopId(rs.getString(2));
-                orderHeld.setHeld_order(rs.getString(3));
-                orderHeld.setOrderId(rs.getInt(4));
-                orderHeld.setDayOrder(Converter.getDateString(rs.getDate(5)));
-                orderHeld.setShip_to_name(rs.getString(6));
-                orderHeld.setShip_to_company(rs.getString(7));
-                orderHeld.setUser_hold((rs.getString(8) == null) ? "" : rs.getString(8));
+                orderHeld.setId(count);
+                orderHeld.setShopId(rs.getString(1));
+                orderHeld.setHeld_order(rs.getString(2));
+                orderHeld.setOrderId(rs.getInt(3));
+                orderHeld.setDayOrder(Converter.getDateString(rs.getDate(4)));
+                orderHeld.setShip_to_name(rs.getString(5));
+                orderHeld.setShip_to_company(rs.getString(6));
+                orderHeld.setUser_hold((rs.getString(7) == null) ? "" : rs.getString(7));
 
                 Object[] object = totalItemShop(conn, orderHeld.getHeld_order());
                 orderHeld.setItem((Integer) object[0]);
@@ -670,7 +687,9 @@ public class OrderDAO
 
                 orderHeldMap.add(orderHeld);
             }
-            this.setTotalRecord(cstmt.getInt(5));
+            int totalRecord = cstmt.getInt(5);
+            System.out.println("totalRecord:" + totalRecord);
+            this.setTotalRecord(totalRecord);
         }
         catch (Exception e)
         {
@@ -799,12 +818,13 @@ public class OrderDAO
 
             }
 
-            System.out.println("Total query " + query);
+            System.out.println("Total query: " + pstmt);
             rs = pstmt.executeQuery();
             while (rs.next())
             {
                 total = rs.getBigDecimal(1);
             }
+            System.out.println("Total rs:" + total);
 
         }
         catch (Exception e)
@@ -1264,8 +1284,9 @@ public class OrderDAO
             cstmt.setInt(3, record);
             cstmt.setString(4, queryWhere);
             cstmt.registerOutParameter(5, java.sql.Types.INTEGER);
-
+            System.out.println("searchOrdersByShopper SQL:" + cstmt);
             rs = cstmt.executeQuery();
+            System.out.println("Query ok");
             while (rs.next())
             {
                 OrderShopper orderShopper = new OrderShopper();
@@ -1279,7 +1300,9 @@ public class OrderDAO
                 orderShopper.setMin(rs.getBigDecimal(8));
                 list.add(orderShopper);
             }
+            System.out.println("Set list ok");
             this.setTotalRecord(cstmt.getInt(5));
+            System.out.println("Get total ok");
         }
         catch (Exception e)
         {
@@ -1758,6 +1781,129 @@ public class OrderDAO
         }
         return total;
     }
+    
+    public List<SummaryInventoryReport> searchInventoryReport(int selectedPage, int pageSize)
+    {
+        List<SummaryInventoryReport> listInventoryReport = new ArrayList<SummaryInventoryReport>();
+        try
+        {
+            LOGGER.info("Execute ProductDAO : function searchCreditReport");
+            DAOUtils daoUtil = DAOUtils.getInstance();
+            conn = daoUtil.getConnection();
+            String sql = daoUtil.getString("search.inventory.report.order.sp");
+//            dayFrom = dayFrom.replaceAll("/", "-");
+//            dayTo = dayTo.replaceAll("/", "-");
+//            String convertFromDay = "";
+//            String coverntToday = "";
+//            dayFrom = convertFromDay.concat(dayFrom.substring(6, 10).concat("-").concat(dayFrom.substring(0, 5)));
+//            dayTo = coverntToday.concat(dayTo.substring(6, 10).concat("-").concat(dayTo.substring(0, 5)));
+//            dayTo += " 23:59:59";
+//            java.sql.Timestamp fromdateTimestamp = Timestamp.valueOf(dayFrom + " 00:00:00");
+//            java.sql.Timestamp todateTimestamp = Timestamp.valueOf(dayTo);
+
+
+            cstmt = conn.prepareCall(sql);
+//            cstmt.setTimestamp(1, fromdateTimestamp);
+//            cstmt.setTimestamp(2, todateTimestamp);
+            cstmt.setInt(1, selectedPage);
+            cstmt.setInt(2, pageSize);
+            cstmt.registerOutParameter(3, java.sql.Types.INTEGER);
+            System.out.println("searchInventoryReport:" + cstmt);
+            rs = cstmt.executeQuery();
+            while (rs.next())
+            {
+                SummaryInventoryReport summaryInventoryReport = new SummaryInventoryReport();
+                summaryInventoryReport.setcategory_id((rs.getInt(1)));
+                summaryInventoryReport.setmfg_part_number(Constants.convertValueEmpty(rs.getString(2)));
+                summaryInventoryReport.setshort_description(Constants.convertValueEmpty(rs.getString(3)));
+                summaryInventoryReport.setitem_count((rs.getInt(4)));
+                summaryInventoryReport.setitem_status(Constants.convertValueEmpty(rs.getString(5)));
+                summaryInventoryReport.setId(rs.getLong(6));
+                
+                listInventoryReport.add(summaryInventoryReport);
+                //LOGGER.info("Discount Adjustment : " + summaryInventoryReport.getContact_name());
+            }
+            this.setTotalRecord(cstmt.getInt(3));
+        }
+        catch (Exception e)
+        {
+            LOGGER.warning("ERROR Execute DAO");
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (rs != null)
+                    rs.close();
+                if (cstmt != null)
+                    cstmt.close();
+                if (conn != null)
+                    conn.close();
+            }
+            catch (SQLException sqlE)
+            {
+                LOGGER.info("SQL error");
+                sqlE.printStackTrace();
+            }
+        }
+        return listInventoryReport;
+    }
+    
+    public String viewInventoryReport()
+    {
+        String total = "";
+        try
+        {
+            LOGGER.info("Execute ProductDAO : function searchCreditReport");
+            DAOUtils daoUtil = DAOUtils.getInstance();
+            conn = daoUtil.getConnection();
+            String sql = daoUtil.getString("view.inventory.report.order");
+            LOGGER.info("SQL : " + sql);
+//            dayFrom = dayFrom.replaceAll("/", "-");
+//            dayTo = dayTo.replaceAll("/", "-");
+//            String convertFromDay = "";
+//            String coverntToday = "";
+//            dayFrom = convertFromDay.concat(dayFrom.substring(6, 10).concat("-").concat(dayFrom.substring(0, 5)));
+//            dayTo = coverntToday.concat(dayTo.substring(6, 10).concat("-").concat(dayTo.substring(0, 5)));
+//            dayTo += " 23:59:59";
+            //java.sql.Timestamp fromdateTimestamp = Timestamp.valueOf(dayFrom + " 00:00:00");
+            //java.sql.Timestamp todateTimestamp = Timestamp.valueOf(dayTo);
+            pstmt = conn.prepareStatement(sql);
+            //pstmt.setTimestamp(1, fromdateTimestamp);
+            //pstmt.setTimestamp(2, todateTimestamp);
+            rs = pstmt.executeQuery();
+            while (rs.next())
+            {
+                total = rs.getString(1);
+
+            }
+
+        }
+        catch (Exception e)
+        {
+            LOGGER.warning("ERROR Execute DAO");
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (rs != null)
+                    rs.close();
+                if (pstmt != null)
+                    pstmt.close();
+                if (conn != null)
+                    conn.close();
+            }
+            catch (SQLException sqlE)
+            {
+                LOGGER.info("SQL error");
+                sqlE.printStackTrace();
+            }
+        }
+        return total;
+    }
 
     /**
      * <p>
@@ -1782,7 +1928,7 @@ public class OrderDAO
 
             pstmt = conn.prepareStatement(query);
             pstmt.setInt(1, year);
-            LOGGER.info(query);
+            LOGGER.info("mapYear:" + pstmt);
             rs = pstmt.executeQuery();
             while (rs.next())
             {
@@ -1850,7 +1996,7 @@ public class OrderDAO
             pstmt = conn.prepareStatement(query);
             pstmt.setInt(1, year);
             pstmt.setInt(2, month);
-            LOGGER.info(query);
+            LOGGER.info("mapMonth:" + pstmt);
             rs = pstmt.executeQuery();
             while (rs.next())
             {
@@ -1986,7 +2132,7 @@ public class OrderDAO
             else
             {
             	// with case category 11961,11961,11963 search level which is Brand Type
-            	if(catid.contains("11961") || catid.contains("11962") || catid.contains("11963")){
+            	if(catid.contains("11961") || catid.contains("11962") || catid.contains("11963") || catid.contains("11940") || catid.contains("11941")){
             		query =
                             query1 + " category_id IN ( " + catid + " )AND ostype LIKE '" + ostype + "%' AND brandtype IN ( " + brandtype + ")  AND cosmetic_grade in("+cosmetic+")  " + query2;
                         filter =
@@ -2005,8 +2151,10 @@ public class OrderDAO
             }
 
             pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, date1);
-            pstmt.setString(2, date2);
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            pstmt.setDate(1, date1Obj);
+            pstmt.setDate(2, date2Obj);
             System.out.println("Order Summary:\n " + query);
             rs = pstmt.executeQuery();
             OrderSummary orderSummary = new OrderSummary();
@@ -2116,6 +2264,8 @@ public class OrderDAO
             /* END */
             /* For non_system_cat */
             String nonSysCat = catid;
+            nonSysCat = nonSysCat.replace("11940", "");
+            nonSysCat = nonSysCat.replace("11941", "");
             nonSysCat = nonSysCat.replace("11946", "");
             nonSysCat = nonSysCat.replace("11947", "");
             nonSysCat = nonSysCat.replace("11949", "");
@@ -2752,8 +2902,10 @@ public class OrderDAO
           //  con = daoUtil.getConnection();
             System.out.println("SALE UNIT --" + query);
             PreparedStatement pstm = con.prepareStatement(query);
-            pstm.setString(1, date1);
-            pstm.setString(2, date2);
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            pstm.setDate(1, date1Obj);
+            pstm.setDate(2, date2Obj);
             ResultSet res = pstm.executeQuery();
             while (res.next())
             {
@@ -2846,8 +2998,10 @@ public class OrderDAO
           //  DAOUtils daoUtil = DAOUtils.getInstance();
           //  con = daoUtil.getConnection();
             PreparedStatement pstm = con.prepareStatement(query);
-            pstm.setString(1, date1);
-            pstm.setString(2, date2);
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            pstm.setDate(1, date1Obj);
+            pstm.setDate(2, date2Obj);
             System.out.println("Order after Filter : " + query);
             ResultSet res = pstm.executeQuery();
             while (res.next())
@@ -3076,9 +3230,12 @@ public class OrderDAO
             String query1 = daoUtil.getString("search.processor.agent.report.order1");
             String query2 = daoUtil.getString("search.processor.agent.report.order2");
             String query = query1 + " brandtype in (" + brandType + ") AND category_id IN (" + catType + ") " + query2;
+            LOGGER.info("PROCESS SQL "+query);
             pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, date1);
-            pstmt.setString(2, date2);
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            pstmt.setDate(1, date1Obj);
+            pstmt.setDate(2, date2Obj);
             System.out.println("SHOW PROCESSOR : " + query);
             rs = pstmt.executeQuery();
             while (rs.next())
@@ -3141,8 +3298,10 @@ public class OrderDAO
                 String query = query1 + " brandtype in (" + brandtype + ") AND category_id IN (" + catType + ") " + query2;
 
                 pstmt = conn.prepareStatement(query);
-                pstmt.setString(1, date1);
-                pstmt.setString(2, date2);
+                java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+                java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+                pstmt.setDate(1, date1Obj);
+                pstmt.setDate(2, date2Obj);
                 System.out.println("SHOW MODEL " + query);
                 rs = pstmt.executeQuery();
                 while (rs.next())
@@ -3157,8 +3316,10 @@ public class OrderDAO
                 String query2 = daoUtil.getString("search.model2b.agent.report.order");
                 String query = query1 + " brandtype in (" + brandtype + ") AND category_id IN (" + catType + ") AND processor_type IN (" + procsellist + ") " + query2;
                 pstmt = conn.prepareStatement(query);
-                pstmt.setString(1, date1);
-                pstmt.setString(2, date2);
+                java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+                java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+                pstmt.setDate(1, date1Obj);
+                pstmt.setDate(2, date2Obj);
                 System.out.println(query);
                 rs = pstmt.executeQuery();
                 while (rs.next())
@@ -3401,9 +3562,9 @@ public class OrderDAO
             DAOUtils daoUtil = DAOUtils.getInstance();
             conn = daoUtil.getConnection();
             String sql = daoUtil.getString("search.view4.pending.order");
-            LOGGER.info("SQL : " + sql);
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, shipid);
+            System.out.println("viewPendingOrderQuery2 SQL:" + pstmt);
             rs = pstmt.executeQuery();
             while (rs.next())
             {
@@ -3605,6 +3766,7 @@ public class OrderDAO
                 viewPendingOrder.setDiscounted_price(Constants.convertValueEmpty(rs.getString("discounted_price")));
                 viewPendingOrder.setTracking_number(Constants.convertValueEmpty(rs.getString("tracking_number")));
                 viewPendingOrder.setCosmetic_grade(Constants.convertValueEmpty(rs.getString("cosmetic_grade")));
+                viewPendingOrder.setOrderedQty(Constants.convertValueEmpty(rs.getString("quantity")));
                 
                 listviewPendingOrder.add(viewPendingOrder);
                 // LOGGER.info("Item Sku : " + orderPending.getOrdernumber());
@@ -3636,7 +3798,10 @@ public class OrderDAO
         }
         return listviewPendingOrder;
     }
-
+    
+    
+    
+    
     /**
      * <p>
      * Search All Order by Agents
@@ -3660,11 +3825,17 @@ public class OrderDAO
             DAOUtils daoUtil = DAOUtils.getInstance();
             conn = daoUtil.getConnection();
             String query = daoUtil.getString("sql.order.agents.all");
-
+            
+            System.out.println("Before convert");
+            
             pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, date1);
-            pstmt.setString(2, date2);
-            LOGGER.info(query);
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            pstmt.setDate(1, date1Obj);
+            pstmt.setDate(2, date2Obj);
+            
+            
+            LOGGER.info("getOrderByAgent:" + pstmt);
             rs = pstmt.executeQuery();
             int id = 1;
             while (rs.next())
@@ -3731,9 +3902,14 @@ public class OrderDAO
             conn = daoUtil.getConnection();
             String query = daoUtil.getString("sql.order.agents.count");
             pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, date1);
-            pstmt.setString(2, date2);
-            LOGGER.info(query);
+            
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            System.out.println("Converted11:" + date1Obj);
+            System.out.println("Converted22:" + date2Obj);
+            pstmt.setDate(1, date1Obj);
+            pstmt.setDate(2, date2Obj);
+            LOGGER.info("countAgents:" + pstmt);
             rs = pstmt.executeQuery();
             if (rs.next())
                 total = rs.getInt(1);
@@ -3845,8 +4021,10 @@ public class OrderDAO
             conn = daoUtil.getConnection();
             String query = daoUtil.getString("sql.order.agents.detail.count");
             pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, date1);
-            pstmt.setString(2, date2);
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            pstmt.setDate(1, date1Obj);
+            pstmt.setDate(2, date2Obj);
             pstmt.setString(3, agentId);
             LOGGER.info(query);
             rs = pstmt.executeQuery();
@@ -3895,22 +4073,29 @@ public class OrderDAO
 
     public List<OrderAgentDetail> getAgentDetail(String date1, String date2, String agentId, int page) throws Exception
     {
+    	//http://localhost:8080/mri_mass/order_db.do?method=detailAgent&agentId=6&date1=11/09/2013&date2=10/01/2014%2023:59:59&agentName=anguyen
         List<OrderAgentDetail> listOrder = new ArrayList<OrderAgentDetail>();
         try
         {
+        	System.out.println("start getAgentDetail");
             DAOUtils daoUtil = DAOUtils.getInstance();
             conn = daoUtil.getConnection();
             String query = daoUtil.getString("sql.order.agents.detail.sp");
-
+            System.out.println("Value query: " + String.valueOf(query));
+            
             cstmt = conn.prepareCall(query);
-
-            cstmt.setString(1, date1);
-            cstmt.setString(2, date2);
+            
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            cstmt.setDate(1, date1Obj);
+            cstmt.setDate(2, date2Obj);
+            
             cstmt.setString(3, agentId);
             cstmt.setInt(4, page);
             cstmt.setInt(5, record);
             cstmt.registerOutParameter(6, java.sql.Types.INTEGER);
-
+            
+            System.out.println("cstmt:" + cstmt);
             rs = cstmt.executeQuery();
             while (rs.next())
             {
@@ -4449,6 +4634,48 @@ public class OrderDAO
         }
         return list;
     }
+    
+    public List<String> getBrandWarranty()
+    {
+        List<String> list = new ArrayList<String>();
+        try
+        {
+            DAOUtils daoUtil = DAOUtils.getInstance();
+            conn = daoUtil.getConnection();
+            String query = daoUtil.getString("sql.order.agent.report.BrandWarranty");
+            pstmt = conn.prepareStatement(query);
+            LOGGER.info(query);
+            rs = pstmt.executeQuery();
+            while (rs.next())
+            {
+                list.add(rs.getString(1));
+            }
+
+        }
+        catch (Exception e)
+        {
+            LOGGER.warning("ERROR Execute DAO");
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (rs != null)
+                    rs.close();
+                if (pstmt != null)
+                    pstmt.close();
+                if (conn != null)
+                    conn.close();
+            }
+            catch (SQLException sqlE)
+            {
+                LOGGER.info("SQL error");
+                sqlE.printStackTrace();
+            }
+        }
+        return list;
+    }
 
     
     public List<String> getCosmeticGrade()
@@ -4524,7 +4751,7 @@ public class OrderDAO
             else
             {
             	//with case category 11961,11961,11963 search level which is Brand Type
-            	if(catid.contains("11961") || catid.contains("11962") || catid.contains("11963")){
+            	if(catid.contains("11961") || catid.contains("11962") || catid.contains("11963") || catid.contains("11940") || catid.contains("11941")){
             		query =
                             query1 + " category_id IN ( " + catid + " )AND ostype LIKE '" + ostype + "%' AND brandtype IN ( " + brandtype + ") AND cosmetic_grade in("+cosmetic+")  " + query2;
                         
@@ -4537,8 +4764,10 @@ public class OrderDAO
             }
 
             pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, date1);
-            pstmt.setString(2, date2);
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            pstmt.setDate(1, date1Obj);
+            pstmt.setDate(2, date2Obj);
             System.out.println("\nAgent Summary: " + query);
             rs = pstmt.executeQuery();
             while (rs.next())
@@ -4649,8 +4878,10 @@ public class OrderDAO
           //  con = daoUtil.getConnection();
 
             PreparedStatement pstm = con.prepareStatement(query);
-            pstm.setString(1, date1);
-            pstm.setString(2, date2);
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            pstm.setDate(1, date1Obj);
+            pstm.setDate(2, date2Obj);
             System.out.println("Sale Unit " + query);
             ResultSet res = pstm.executeQuery();
             while (res.next())
@@ -4840,8 +5071,10 @@ public class OrderDAO
             summ.setOrders(0);
 
             PreparedStatement pstm = con.prepareStatement(query);
-            pstm.setString(1, date1);
-            pstm.setString(2, date2);
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            pstm.setDate(1, date1Obj);
+            pstm.setDate(2, date2Obj);
             System.out.println("DOCKING STATION " + query);
             ResultSet res = pstm.executeQuery();
             while (res.next())
@@ -4922,8 +5155,10 @@ public class OrderDAO
            // con = daoUtil.getConnection();
 
             PreparedStatement pstm = con.prepareStatement(query);
-            pstm.setString(1, date1);
-            pstm.setString(2, date2);
+            java.sql.Date date1Obj = Converter.stringToDateSQL(date1);
+            java.sql.Date date2Obj = Converter.stringToDateSQL(date2);
+            pstm.setDate(1, date1Obj);
+            pstm.setDate(2, date2Obj);
             System.out.println("DOCKING STATION AGENT " + query);
             ResultSet res = pstm.executeQuery();
             while (res.next())
@@ -4982,7 +5217,9 @@ public class OrderDAO
             pstmt.setString(1, ordernumber);
             pstmt.setString(2, agentclear);
             LOGGER.info(query);
+            System.out.println("before execute");
             pstmt.execute();
+            System.out.println("after execute");
             
     		b=true;
     	}catch(Exception e){

@@ -1,0 +1,40 @@
+
+-- --------------------------------------------------------------------------------
+-- Routine DDL
+-- Note: comments before and after the routine body will not be stored by the server
+-- --------------------------------------------------------------------------------
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspPagingAgentLookup`(
+    IN StartRecord int,
+    IN EndRecord int,
+    IN SortColumn varchar(500),
+    IN WhereClause varchar(500),
+    OUT TotalRecord int  
+)
+BEGIN
+    DROP TABLE IF EXISTS TempTableCustomerLookup;
+    CREATE TEMPORARY TABLE TempTableCustomerLookup (
+        RowNumber int auto_increment primary key,
+        agent_id char(32));
+    
+    -- Build INSERT statement used to populate temporary table
+    SET @SQLQuery = CONCAT('INSERT TempTableCustomerLookup (agent_id) SELECT agent_id FROM adminusers ', WhereClause, ' ORDER BY ', SortColumn );
+    PREPARE stmt1 FROM @SQLQuery;
+    EXECUTE stmt1;
+    deallocate PREPARE stmt1;
+    
+    -- Build caculate total record
+    SET @SQLQuery = 'SELECT count(agent_id) FROM adminusers into @i';
+    PREPARE stmt2 FROM @SQLQuery;
+    EXECUTE stmt2;
+    deallocate PREPARE stmt2;
+
+    SET TotalRecord = @i;
+
+    SET @SQLQuery = CONCAT('SELECT RowNumber, adminusers.* FROM adminusers INNER JOIN TempTableCustomerLookup tmp ON tmp.agent_id = adminusers.agent_id WHERE RowNumber >= ', CAST(StartRecord AS char(10)),' AND RowNumber <= ',CAST(EndRecord AS char(10)) );
+    PREPARE stmt3 FROM @SQLQuery;
+    EXECUTE stmt3;
+    deallocate PREPARE stmt3;
+    DROP TABLE IF EXISTS TempTableCustomerLookup; 
+END

@@ -180,14 +180,14 @@ public class OrderManagerExport extends DispatchAction
             HSSFSheet sheet = wb.createSheet();
             sheet.setDefaultColumnWidth(17);
             HSSFCellStyle cellStyleBold = wb.createCellStyle();
-
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
             
             HSSFCellStyle stylePercentFormat = null;
             stylePercentFormat = wb.createCellStyle();
-            stylePercentFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("0%"));
+            stylePercentFormat.setDataFormat(df.getFormat("0%"));
                         
             HSSFFont font = (HSSFFont) wb.createFont();
             font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
@@ -424,18 +424,20 @@ public class OrderManagerExport extends DispatchAction
             HSSFCellStyle cellStyleAlignRight = wb.createCellStyle();
             cellStyleAlignRight.setAlignment(CellStyle.ALIGN_RIGHT);
             
+            HSSFDataFormat df = wb.createDataFormat();
+            
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
             
-            HSSFDataFormat df = wb.createDataFormat();
+            
             HSSFCellStyle styleCurrency3DecimalFormat = null;
             styleCurrency3DecimalFormat = wb.createCellStyle();
             styleCurrency3DecimalFormat.setDataFormat(df.getFormat("$#,##0.000"));
             
             HSSFCellStyle stylePercentFormat = null;
             stylePercentFormat = wb.createCellStyle();
-            stylePercentFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("0%"));
+            stylePercentFormat.setDataFormat(df.getFormat("0%"));
 
             HSSFCellStyle cs = wb.createCellStyle();
             cs.setWrapText(true);
@@ -599,14 +601,14 @@ public class OrderManagerExport extends DispatchAction
 
             HSSFCellStyle cs = wb.createCellStyle();
             cs.setWrapText(true);
-            
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
                      
             HSSFCellStyle stylePercentFormat = null;
             stylePercentFormat = wb.createCellStyle();
-            stylePercentFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("0%"));
+            stylePercentFormat.setDataFormat(df.getFormat("0%"));
 
 
             HttpSession session = request.getSession();
@@ -775,19 +777,18 @@ public class OrderManagerExport extends DispatchAction
             HSSFCellStyle cellStyleBoldAlignRight = wb.createCellStyle();
             cellStyleBoldAlignRight.setFont(font);
             cellStyleBoldAlignRight.setAlignment(HSSFCellStyle.ALIGN_RIGHT);
-            
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
             
-            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrency3DecimalFormat = null;
             styleCurrency3DecimalFormat = wb.createCellStyle();
             styleCurrency3DecimalFormat.setDataFormat(df.getFormat("$#,##0.000"));
             
             HSSFCellStyle stylePercentFormat = null;
             stylePercentFormat = wb.createCellStyle();
-            stylePercentFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00%"));
+            stylePercentFormat.setDataFormat(df.getFormat("0.00%"));
 
 
             HttpSession session = request.getSession();
@@ -990,14 +991,14 @@ public class OrderManagerExport extends DispatchAction
 
             HSSFCellStyle cs = wb.createCellStyle();
             cs.setWrapText(true);
-            
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
            
             HSSFCellStyle stylePercentFormat = null;
             stylePercentFormat = wb.createCellStyle();
-            stylePercentFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00%"));
+            stylePercentFormat.setDataFormat(df.getFormat("0.00%"));
             HttpSession session = request.getSession();
 
             int year = Integer.valueOf(request.getParameter(Constants.ORDER_YEAR_PARAM));
@@ -1210,14 +1211,14 @@ public class OrderManagerExport extends DispatchAction
 
             HSSFCellStyle cs = wb.createCellStyle();
             cs.setWrapText(true);
-            
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
             
             HSSFCellStyle stylePercentFormat = null;
             stylePercentFormat = wb.createCellStyle();
-            stylePercentFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("0%"));
+            stylePercentFormat.setDataFormat(df.getFormat("0%"));
             
 
             int year = Integer.valueOf(request.getParameter(Constants.ORDER_YEAR_PARAM));
@@ -1316,14 +1317,14 @@ public class OrderManagerExport extends DispatchAction
 
             HSSFCellStyle cs = wb.createCellStyle();
             cs.setWrapText(true);
-            
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
             
             HSSFCellStyle stylePercentFormat = null;
             stylePercentFormat = wb.createCellStyle();
-            stylePercentFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00%"));
+            stylePercentFormat.setDataFormat(df.getFormat("0.00%"));
 
             HttpSession session = request.getSession();
 
@@ -1539,14 +1540,14 @@ public class OrderManagerExport extends DispatchAction
 
             HSSFCellStyle cs = wb.createCellStyle();
             cs.setWrapText(true);
-            
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
             
             HSSFCellStyle stylePercentFormat = null;
             stylePercentFormat = wb.createCellStyle();
-            stylePercentFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00%"));
+            stylePercentFormat.setDataFormat(df.getFormat("0.00%"));
             
             HttpSession session = request.getSession();
 
@@ -1694,16 +1695,15 @@ public class OrderManagerExport extends DispatchAction
 
             HSSFCellStyle cs = wb.createCellStyle();
             cs.setWrapText(true);
-            
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
             
             HSSFCellStyle styleCurrency0DecimalFormat  = null;
             styleCurrency0DecimalFormat = wb.createCellStyle();
-            styleCurrency0DecimalFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0_);($#,##0)"));
+            styleCurrency0DecimalFormat.setDataFormat(df.getFormat("$#,##0_);($#,##0)"));
             
-            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrency3DecimalFormat = null;
             styleCurrency3DecimalFormat = wb.createCellStyle();
             styleCurrency3DecimalFormat.setDataFormat(df.getFormat("$#,##0.000"));
@@ -2211,10 +2211,10 @@ public class OrderManagerExport extends DispatchAction
             HSSFCellStyle cellStyleWrapTextBoldAlignRight = wb.createCellStyle();
             cellStyleWrapTextBoldAlignRight.setFont(font);
             cellStyleWrapTextBoldAlignRight.setAlignment(CellStyle.ALIGN_RIGHT);
-
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
 
             Row row00 = sheet.createRow((short) 1);
             Cell cel0Row00 = row00.createCell((short) 0);
@@ -2307,10 +2307,10 @@ public class OrderManagerExport extends DispatchAction
             HSSFCellStyle cellStyleWrapTextBoldAlignRight = wb.createCellStyle();
             cellStyleWrapTextBoldAlignRight.setFont(font);
             cellStyleWrapTextBoldAlignRight.setAlignment(CellStyle.ALIGN_RIGHT);
-
+            HSSFDataFormat df = wb.createDataFormat();
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
             
             Row row000 = sheet.createRow((short) 0);
             Cell cel0row000 = row000.createCell((short) 0);

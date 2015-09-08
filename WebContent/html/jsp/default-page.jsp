@@ -37,18 +37,18 @@
 					</tr>
 					</tbody>
 				</table>
-				<table width="100%" border="0" align="center">
+				<table width="800" border="0" align="center">
 					<tbody><tr>
 						<td width="16%">&nbsp;</td>
 					</tr>
 				</tbody></table>				
 				
 				<br> 
-				<table width="100%" border="0" align="center">
+				<table width="800" border="0" align="center">
 					<tbody><tr>
-						<td width="16%">&nbsp;</td>
+						<td width="7%">&nbsp;</td>
 						<td width="33%" align="center">
-						<a class="nounderline" href="order_db.do" target="_parent"><img hspace="2" border="0" src="images/dept_orders.gif">
+							<a class="nounderline" href="order_db.do" target="_parent"><img hspace="2" border="0" src="images/dept_orders.gif">
 								<br>
 								<font size="2" face="Arial, Helvetica">Orders</font></a><font size="2" face="Arial, Helvetica"></font>							
 						</td>
@@ -64,7 +64,13 @@
 						<%
 						}
 						%>
-						<td width="16%">&nbsp;</td>
+						
+						<td width="33%" align="center">
+								<a class="nounderline" href="listProduct.do?method=inventoryList" target="_parent"><img hspace="2" border="0" src="images/mass-icon.png">
+								<br>
+								<font size="2" face="Arial, Helvetica">Admin</font></a><font size="2" face="Arial, Helvetica"></font>							
+						</td>
+						
 					</tr>
 				</tbody></table>
 				

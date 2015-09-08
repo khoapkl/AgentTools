@@ -56,16 +56,30 @@
 		    for (OrderAgent agent : list)
 		        {
 		           finalTotal += agent.getTotalSum().doubleValue();
-		           if(agent.getTotalMax().compareTo(finalMax)>0) finalMax =agent.getTotalMax();
-		           finalMin = agent.getTotalMin();		           
-		           if(agent.getDiscMax().compareTo(finalDiscMax)>0) finalDiscMax =agent.getDiscMax();
-		           finalDiscMin = agent.getDiscMin();
+		           if(agent.getTotalMax().compareTo(finalMax)>0) {
+		        	   finalMax =agent.getTotalMax();
+		           }
+		           finalMin = agent.getTotalMin();		
+		           
+		           if(agent != null && agent.getDiscMax() != null && agent.getDiscMax().compareTo(finalDiscMax)>0) {
+		        	   finalDiscMax = agent.getDiscMax();
+		           }
+		           //FIXME: exception
+		           if(agent != null && agent.getDiscMin() != null) {
+		        	   finalDiscMin = agent.getDiscMin();
+		           } else{
+		        	   finalDiscMin = new BigDecimal(0);
+		           }
+		           
 		           finalAsp +=agent.getUnitAsp().doubleValue();
 		           finalDiscAvg +=agent.getDiscAvg().doubleValue();
-		           if(style.equals("#CCCCCC"))
-		               style = "#99CCFF";
-		           else 
-		               style = "#CCCCCC";
+		           if(style.equals("#CCCCCC")){
+		        	   style = "#99CCFF";
+		           }		               
+		           else {
+		        	   style = "#CCCCCC";
+		           }
+		              
 		%>
 		<tr style="background-color:<%= style %>">
 			<td valign="TOP" align="RIGHT" bgcolor="#ffffff"><a
@@ -85,7 +99,15 @@
 	        {
 	         BigDecimal min = agent.getTotalMin();
 	         if (finalMin.compareTo(min)>0)finalMin = min;
-	         BigDecimal temp = agent.getDiscMin();
+	         
+	         //FIXME: exception
+	         BigDecimal temp = null;
+	         if(agent != null && agent.getDiscMin() != null) {
+	        	 temp = agent.getDiscMin();
+	           } else{
+	        	   temp = new BigDecimal(0);
+	           }
+	         
 	         if (finalDiscMin.compareTo(temp)>0)finalDiscMin = temp;
 	        }
 		%>

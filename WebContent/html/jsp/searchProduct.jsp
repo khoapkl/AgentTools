@@ -156,7 +156,7 @@
 			%>
 			
 			<%
-			if((isCustomer==null || !((Boolean)isCustomer).booleanValue()) && (category_id == 11946 ||category_id == 11947 ||category_id == 11949)){
+			if((isCustomer==null || !((Boolean)isCustomer).booleanValue())){
 			%>
 			<td valign="top" nowrap="nowrap" align="center">Cosmetic Grade
 			<span name="mutiple-Cosmetic" style="cursor: pointer;" class="mutiple-Cosmetic" rel="cosmetic_grade">[ + ]</span>
@@ -167,6 +167,7 @@
 				    if (request.getAttribute(Constants.ATTR_LIST_COSMETIC) != null)
 				    {
 			    		listCosmetic = (List<String>)request.getAttribute(Constants.ATTR_LIST_COSMETIC);
+			    		listCosmetic.removeAll(Collections.singleton(null));
 				        Collections.sort(listCosmetic);
 				        for (int i = 0 ; i < listCosmetic.size() ; i++)
 				        {   				
@@ -249,6 +250,7 @@
 			%>
 			<td valign="top" nowrap="nowrap" align="center">Sort By<br>
 			<select name="sort_by" id="sort_by">
+				<option value="days_at_mri" >Aging Bucket</option>
 				<%
 			    if (request.getAttribute(Constants.ATTR_SORT_BY) != null)
 			    {

@@ -369,19 +369,20 @@ if(userLevel!=null && !userLevel.equals("C")){
     	</TD>
     	
         <TD VALIGN=BOTTOM ALIGN=LEFT><b>Product<br>Number</b></TD>
-        <%if(isAdmin) {%>
+        <%if((isAdmin) || (!isAdmin)) {%>
         	<TD VALIGN=BOTTOM ALIGN=LEFT><b>Cosmetic Grade</b></TD>	
         	
         <%}else{%>
         	<TD VALIGN=BOTTOM ALIGN=LEFT></TD>
         <%}%>
         <TD VALIGN=BOTTOM ALIGN=LEFT><b>Product Name</b></TD>
-        <TD VALIGN=BOTTOM ALIGN=RIGHT><b>Unit Price</b></TD>
+        <TD VALIGN=BOTTOM ALIGN=CENTER><b>Qty</b></TD>
+        <TD VALIGN=BOTTOM ALIGN=RIGHT><b>Price</b></TD>
         <TD VALIGN=BOTTOM ALIGN=CENTER><b>Tracking #</b></TD>
         <TD VALIGN=BOTTOM ALIGN=CENTER><b>Listing # </b></TD>
        
     </TR>
-    <tr><TD BGCOLOR=black colspan=8 HEIGHT="2"><IMG SRC="manager/MSCS_Images/extras/dot_clear.gif" WIDTH=1 HEIGHT=1></TD></tr>   
+    <tr><TD BGCOLOR=black colspan=9 HEIGHT="2"><IMG SRC="manager/MSCS_Images/extras/dot_clear.gif" WIDTH=1 HEIGHT=1></TD></tr>   
 	           <%	
 if(listFollowNumber != null && !listFollowNumber.isEmpty()){  
  for(OrderViewPending order : listFollowNumber) {
@@ -403,14 +404,15 @@ if(listFollowNumber != null && !listFollowNumber.isEmpty()){
              <a href="javascript:void(0)" onClick="openWarrenty('searchProduct.do?method=productDetail&item_sku=<%=order.getItem_sku()%>');" onmouseOver="window.status='Click for warranty information.'; return true" onmouseOut="window.status=''; return true" CLASS="nounderline"><font color="red"><u><%= order.getItem_sku()%></u></font></a>
                      
             </TD>
-            <%if(isAdmin) {%>
-        		<TD VALIGN=TOP ALIGN=RIGHT><%=order.getCosmetic_grade() %></td>	
+            <%if((isAdmin) || (!isAdmin)) {%>
+        		<TD VALIGN=TOP ALIGN=CENTER><%=order.getCosmetic_grade() %></td>	
         		
         	<%}else{%>
         		<TD VALIGN=BOTTOM ALIGN=LEFT></TD>
         	<%}%>
             
-             <TD VALIGN=TOP ALIGN=LEFT><%=order.getDescription() %></td>      
+             <TD VALIGN=TOP ALIGN=LEFT><%=order.getDescription() %></td>
+             <TD VALIGN=TOP ALIGN=CENTER><%=order.getOrderedQty() %></td>       
            
     		 <TD VALIGN=TOP ALIGN=RIGHT>
     <%     
@@ -457,7 +459,7 @@ else{
      <%     
  }}
 %>
-<tr><TD BGCOLOR=black colspan=8 HEIGHT="2"><IMG SRC="manager/MSCS_Images/extras/dot_clear.gif" WIDTH=1 HEIGHT=1></TD></tr>
+<tr><TD BGCOLOR=black colspan=9 HEIGHT="2"><IMG SRC="manager/MSCS_Images/extras/dot_clear.gif" WIDTH=1 HEIGHT=1></TD></tr>
 <TR>
         <TD COLSPAN=4 VALIGN=TOP ALIGN=RIGHT>
             Subtotal:

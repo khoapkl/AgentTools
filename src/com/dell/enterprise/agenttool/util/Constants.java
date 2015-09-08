@@ -182,6 +182,7 @@ public final class Constants
     public static final String ATTR_PRODUCT_CURRENT_PAGE = "attr_product_current_page";
     public static final String ATTR_ITEM_SKU = "attr_item_sku";
     public static final String ATTR_ITEM_BASKET = "attr_item_basket";
+    public static final String ATTR_LIST_WARRANTY = "attr_list_warranty";
     public static final String ATTR_ORDER_ROW = "attr_order_row";
     public static final String ATTR_ESTORE_BASKET_ITEM = "attr_estore_basket_item";
     public static final String ATTR_ORDER_CANCEL = "attr_order_cancel";
@@ -197,6 +198,8 @@ public final class Constants
     public static final String ATTR_CHECKOUT_RESULTS = "attr_checkout_results";
     public static final String ATTR_ORDER_ID = "attr_order_id";
     public static final String ATTR_SHOPPER_ID = "attr_shopper_id";
+    public static final String ATTR_QTY_NB = "attr_qty_nb";
+    public static final String ATTR_QTY_DT = "attr_qty_dt";
     public static final String ATTR_CHECK_CAT = "attr_check_cat";
     public static final String ATTR_HOLD_DAYS = "attr_hold_days";
     public static final String ATTR_LIST_ERROR = "attr_list_error";
@@ -247,6 +250,7 @@ public final class Constants
 
     public static final String ERROR_PAGE_VIEW = "error.page.view";
     public static final String LOGIN_VIEW = "agenttool.login.view";
+    public static final String LOGIN = "agenttool.login";
     public static final String LOGIN_FAILURE = "agenttool.login.failure";
     public static final String LOGIN_SUCCESS = "agenttool.login.success";
     public static final String PARAMETER = "method";
@@ -261,6 +265,13 @@ public final class Constants
     public static final String SHOPPING_ID = "shopping_id";
     public static final String USER_LEVEL = "userLevel";
     public static final String CUSTOMER_MANAGE = "customer.manage";
+    public static final String AGENT_NAME = "agent.userName";
+    public static final String AGENT_PASSWORD = "agent.password";
+    public static final String UPDATE_PASSWORD_VIEW = "agenttool.updatePassword";
+    public static final String CHANGE_PASSWORD_VIEW = "agenttool.changePassword";
+    public static final String SECURITY_SETTING_VIEW = "agenttool.securitySetup";
+    
+    
 
     public static final String SHOPPER_YEAR_VIEW = "agenttool.shopper_year.view";
     public static final String SHOPPER_YEAR_RESULTS = "agenttool.shopper_year.results";
@@ -389,6 +400,7 @@ public final class Constants
     public static final String ORDER_AGENT_REPORT_BrandLaptop = "BrandLaptop";
     public static final String ORDER_AGENT_REPORT_BrandDesktop = "BrandDesktop";
     public static final String ORDER_AGENT_REPORT_BrandWorkstation = "BrandWorkstation";
+    public static final String ORDER_AGENT_REPORT_BrandWarranty = "BrandWarranty";
     public static final String ORDER_AGENT_REPORT_COSMETIC = "agent_report_cosmetic";
     public static final String ORDER_AGENT_REPORT_DOCKING = "dockingStation";
     public static final String ORDER_REPORT_SUMMARY_RESULT = "reportList";
@@ -421,6 +433,9 @@ public final class Constants
     public static final String LIST_SEARCH_CREDIT_REPORT_ORDER = "agenttools.search.creadit.report.order";
     public static final String VIEW_CREDIT_REPORT = "agenttools.view.creadit.report.order";
     public static final String VIEW_TOTAL_CREDIT_REPORT_ORDER = "agenttools.view.total.creadit.report.order";
+    public static final String LIST_SEARCH_SUMMARY_INVENTORY_REPORT = "agenttools.search.inventory.report.order";
+    public static final String VIEW_SUMMARY_INVENTORY_REPORT = "agenttools.view.inventory.report.order";
+    public static final String SHOW_PRINT_INVENTORY_REPORT_ORDER = "agenttools.export.exel.inventory.report.order";
     public static final String SHOW_PRINT_CREDIT_REPORT_ORDER = "agenttools.export.exel.creadit.report.order";
 
     /*

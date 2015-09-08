@@ -10,16 +10,7 @@
 <Context>
   <Resource name="jdbc/AgentTool" auth="Container" type="javax.sql.DataSource"
                maxActive="100" maxIdle="30" maxWait="10000"
-               username="sa" password="123456" driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
-               url="jdbc:sqlserver://DANGTIEN-PC\SQLEXPRESS;DatabaseName=dfs_tester_db_from22Apr"/>
-</Context>
-
+               username="root" password="123456" driverClassName="com.mysql.jdbc.Driver"
+               url="jdbc:mysql://10.10.30.14:3306/agent_tool"/>
  
-<!--
-<Context>
-  <Resource name="jdbc/AgentTool" auth="Container" type="javax.sql.DataSource"
-               maxActive="100" maxIdle="30" maxWait="10000"
-               username="sa" password="binhht" driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
-               url="jdbc:sqlserver://10.10.10.3\\SQLEXPRESS:1433;DatabaseName=dfs_tester_db"/>
 </Context>
--->

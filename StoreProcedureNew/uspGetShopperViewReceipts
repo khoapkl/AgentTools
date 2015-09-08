@@ -1,0 +1,67 @@
+-- --------------------------------------------------------------------------------
+-- Routine DDL
+-- Note: comments before and after the routine body will not be stored by the server
+-- --------------------------------------------------------------------------------
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspGetShopperViewReceipts`(
+	IN ShopperID varchar(255),
+	IN SelectedPage int,
+	IN PageSize int,
+	OUT TotalRecord int
+)
+BEGIN
+DECLARE StartRecord int;
+DECLARE EndRecord int;
+DECLARE TableOrViewName varchar(500);
+DECLARE ColumnNames varchar(3000);
+DECLARE GroupBy varchar(1000);
+DECLARE SortColumn varchar(255);
+DECLARE WhereClause varchar(255);
+SET ColumnNames = 'createdDate,total_total,t.OrderNumber';
+SET TableOrViewName = 'orderheader t';
+SET WhereClause = CONCAT('shopper_id = ''', ShopperID ,''' ');
+SET GroupBy = '';
+SET SortColumn = 't.createdDate DESC ';
+
+-- Create temporary table
+CREATE temporary TABLE TempTableViewReceipts(
+	RowNumber int auto_increment primary key,
+	OrderNumber varchar(100) );
+ 
+-- Find first record on selected page
+SET StartRecord = (SelectedPage - 1) * PageSize + 1;
+ 
+-- Find last record on selected page
+SET EndRecord = SelectedPage * PageSize;
+ 
+-- Check if there is WHERE clause
+IF WhereClause <>  '' Then
+    SET WhereClause = CONCAT(' WHERE ', WhereClause);
+  END IF;
+
+-- Build caculate total record
+SET @SQLQuery = CONCAT('SELECT COUNT(OrderNumber) FROM (SELECT t.OrderNumber FROM ',TableOrViewName ,WhereClause ,GroupBy ,') tb1 into @i');
+PREPARE stmt1 FROM @SQLQuery;
+EXECUTE stmt1;
+deallocate PREPARE stmt1;
+
+SET TotalRecord = @i;
+
+-- Build INSERT statement used to populate temporary table
+SET @SQLQuery = CONCAT('INSERT  TempTableViewReceipts (OrderNumber) SELECT t.OrderNumber FROM ' ,TableOrViewName ,WhereClause ,GroupBy,'  ORDER BY ', SortColumn );
+-- Execute statement and populate temp table
+PREPARE stmt2 FROM @SQLQuery;
+EXECUTE stmt2;
+deallocate PREPARE stmt2;
+
+-- Build SQL query to return only selected page
+SET @SQLQuery = CONCAT('SELECT RowNumber,',ColumnNames ,' FROM ' ,TableOrViewName ,' ,TempTableViewReceipts tmp WHERE RowNumber >= ',CAST(StartRecord AS char(20)) ,' AND RowNumber <= ',CAST(EndRecord AS char(20)) ,' AND tmp.OrderNumber = t.OrderNumber ORDER BY RowNumber ' );
+PREPARE stmt3 FROM @SQLQuery;
+EXECUTE stmt3;
+deallocate PREPARE stmt3;
+
+-- Delete temporary table
+DROP TABLE IF EXISTS TempTableViewReceipts;
+
+END

@@ -38,6 +38,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.dell.enterprise.agenttool.DAO.ProductDAO;
 import com.dell.enterprise.agenttool.model.Agent;
 import com.dell.enterprise.agenttool.model.Product;
@@ -69,6 +71,7 @@ import com.dell.enterprise.agenttool.util.Constants;
  */
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 /**
  * String handling utilities.
  *
@@ -350,7 +353,7 @@ class StringUtilities
 
 public class ProductServices
 {
-
+	private static final Logger LOGGER = Logger.getLogger("com.dell.enterprise.agenttool.service.ProductServices");
     private int totalRecord = 0;
     public static String join(Iterable<? extends Object> elements, CharSequence separator) 
     {
@@ -409,7 +412,12 @@ public class ProductServices
         ProductDAO dao = new ProductDAO();
 
         //String newOrderBy = " ORDER BY Convert(INT," + attribute + ") ";
-        String newOrderBy = " ORDER BY replicate('0', 255 - len(" + attribute + ")) + " + attribute;
+//        String newOrderBy = " ORDER BY REPEAT('0', 255 - LENGTH(" + attribute + ")) + " + attribute;
+        
+        //FIXME: This fix for order by ( + operator not concat two string in mysql - Fixed but need test)
+        String newOrderBy = " ORDER BY CONCAT(REPEAT('0', 255 - LENGTH(" + attribute + ")), " + attribute + ") ";
+        
+        LOGGER.info("Execute DAO newOrderBy  : " + newOrderBy);
         String order_by = this.buildOrderByCategoryAttribute(newOrderBy, attribute, category_id);
         if (order_by.isEmpty())
         {
@@ -459,7 +467,7 @@ public class ProductServices
         if (request.getParameter("category_id") != null && request.getParameter("sort_by") != null)
         {
             sortBy = request.getParameter("sort_by");
-            String newOrderBy = " replicate('0', 255 - len(" + sortBy + ")) + " + sortBy;
+            String newOrderBy = " REPEAT('0', 255 - LENGTH(" + sortBy + ")) + " + sortBy;
 
             //String newOrderBy = " ORDER BY Convert(FLOAT,dbo.UDF_ParseAlphaChars(" + sortBy + "))";
             orderby = this.buildOrderByCategory(newOrderBy, request);
@@ -494,8 +502,8 @@ public class ProductServices
         }
         
         //System.out.println("Customer : "+isCustomer);
-        String columnAttr = "t1.item_sku, t1.name, t1.status, datediff(d,received_date,getdate()) as item_age, (CASE WHEN modified_price=0 THEN list_price ELSE modified_price END) AS list_price, t3.shopper_id, ";
-        columnAttr = columnAttr.concat("(CASE WHEN t1.status LIKE '%-SOLD' THEN  (SELECT TOP 1 orderNumber FROM orderLine where item_sku = t1.item_sku)  ELSE (select TOP 1 order_id from estore_basket where shopper_id = t3.shopper_id "  + byAgent + ") END ) as order_id,");
+        String columnAttr = "t1.item_sku, t1.name, t1.status, datediff(NOW(), received_date) as item_age, (CASE WHEN modified_price=0 THEN list_price ELSE modified_price END) AS list_price, t3.shopper_id, ";
+        columnAttr = columnAttr.concat("(CASE WHEN t1.status LIKE '%-SOLD' THEN  (SELECT ordernumber FROM orderline where item_sku = t1.item_sku limit 1)  ELSE (select order_id from estore_basket where shopper_id = t3.shopper_id "  + byAgent + " limit 1) END ) as order_id,");
         columnAttr = columnAttr.concat("t1.flagtype, item_id = NULL, t1.image_url"); 
         return columnAttr;
     }
@@ -503,6 +511,9 @@ public class ProductServices
     public String buildQuerySearch(HttpServletRequest request)
     {
         HttpSession sessions = request.getSession();
+        
+        Agent agent = (Agent) sessions.getAttribute(Constants.AGENT_INFO);
+        String agentUser = agent.getUserName();
 
         String shopper_id = "";
         if (sessions.getAttribute(Constants.SHOPPER_ID) != null)
@@ -571,6 +582,11 @@ public class ProductServices
                     String statusPending = inventory.equals(Constants.STATUS_ITEM_INSTORE) ?  Constants.STATUS_ITEM_INSTORE_PENDING :  Constants.STATUS_ITEM_INSTORE_PENDING_COT ;
                     query += " AND ((status = '" + inventory + "') OR (shopper_id = '" + shopper_id + "' AND " + byAgent + " AND status = '" + statusPending + "')) ";
                 }
+                else if (inventory.equalsIgnoreCase("AGENT-" + agentUser + "-AVAILABLE"))
+                {
+                    String statusPending = "AGENT-" + agentUser.toUpperCase() + "-PENDING"; 
+                    query += " AND ((status = '" + inventory + "') OR (shopper_id = '" + shopper_id + "' AND " + byAgent + " AND status = '" + statusPending + "')) ";
+                }
                 else
                 {
                     query += " AND ((status = '" + inventory + "')) ";
@@ -583,31 +599,31 @@ public class ProductServices
                 String aging_bucket = request.getParameter("aging_bucket");
                 if (aging_bucket.equals("30"))
                 {
-                    query += " AND (datediff(d,received_date,getdate()) <= 30)  ";
+                    query += " AND (datediff(NOW(), received_date) <= 30)  ";
                 }
                 else if (aging_bucket.equals("3140"))
                 {
-                    query += " AND (datediff(d,received_date,getdate()) between 31 and 40)  ";
+                    query += " AND (datediff(NOW(), received_date) between 31 and 40)  ";
                 }
                 else if (aging_bucket.equals("4150"))
                 {
-                    query += " AND (datediff(d,received_date,getdate()) between 41 and 50)  ";
+                    query += " AND (datediff(NOW(), received_date) between 41 and 50)  ";
                 }
                 else if (aging_bucket.equals("5160"))
                 {
-                    query += " AND (datediff(d,received_date,getdate()) between 51 and 60)  ";
+                    query += " AND (datediff(NOW(), received_date) between 51 and 60)  ";
                 }
                 else if (aging_bucket.equals("6170"))
                 {
-                    query += " AND (datediff(d,received_date,getdate()) between 61 and 70)  ";
+                    query += " AND (datediff(NOW(), received_date) between 61 and 70)  ";
                 }
                 else if (aging_bucket.equals("7190"))
                 {
-                    query += " AND (datediff(d,received_date,getdate()) between 71 and 90)  ";
+                    query += " AND (datediff(NOW(),received_date) between 71 and 90)  ";
                 }
                 else if (aging_bucket.equals("91"))
                 {
-                    query += " AND (datediff(d,received_date,getdate()) >= 90)  ";
+                    query += " AND (datediff(NOW(),received_date) >= 90)  ";
                 }
                 else
                 {
@@ -673,6 +689,7 @@ public class ProductServices
         Boolean flag = true;
         ProductDAO productDAO = new ProductDAO();
         String[] arrSku = skus.split(",");
+       
         if (arrSku.length > 0)
         {
             for (String item_sku : arrSku)
@@ -681,6 +698,7 @@ public class ProductServices
                 if (product == null)
                 {
                     product = productDAO.getItemProduct(item_sku);
+                    
                     productDAO.orderAddItem(shopper_id, product, byAgent);
                 }
                 else

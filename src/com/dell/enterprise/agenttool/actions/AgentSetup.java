@@ -1,5 +1,6 @@
 package com.dell.enterprise.agenttool.actions;
 
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +12,8 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import com.dell.enterprise.agenttool.model.Agent;
 import com.dell.enterprise.agenttool.services.AgentService;
+import com.dell.enterprise.agenttool.services.AuthenticationService;
+import com.dell.enterprise.agenttool.services.SecurityService;
 import com.dell.enterprise.agenttool.util.Constants;
 import com.dell.enterprise.agenttool.util.Converter;
 
@@ -181,20 +184,33 @@ public class AgentSetup extends DispatchAction {
 	            	
 	                LOGGER.info("Execute Action");
 	                AgentService service = new AgentService();
+	                SecurityService security = new SecurityService();
 	           
 	                String mngUsername = request.getParameter("mngUsername");
+	                LOGGER.info("Execute addAgent Action user:" + mngUsername);
 	                String mngEmail = request.getParameter("mngEmail");
 	                String mngUserLevel = request.getParameter("mngUserLevel");
-	                String mngPassword = request.getParameter("mngPassword");
+	                String tmpPassword = request.getParameter("mngPassword");
 	                String mngFullname = request.getParameter("mngFullname");
 	                
 	                int isReport = Constants.convertValueEmpty(request.getParameter("mngIsReport")).isEmpty()?Integer.MAX_VALUE:Integer.valueOf(request.getParameter("mngIsReport"));	                
 	                int isAdmin = Constants.convertValueEmpty(request.getParameter("mngIsAdmin")).isEmpty()?Integer.MAX_VALUE:Integer.valueOf(request.getParameter("mngIsAdmin")); 
 	                int isActive = Constants.convertValueEmpty(request.getParameter("mngIsActive")).isEmpty()?Integer.MAX_VALUE:Integer.valueOf(request.getParameter("mngIsActive")); 
 	                int userType = Constants.convertValueEmpty(request.getParameter("mngUserType")).isEmpty()?Integer.MAX_VALUE:Integer.valueOf(request.getParameter("mngUserType")); 
-	          
+	                
+	                String mngPassword= security.encryptPassword(tmpPassword);  	
+	           
 	                result = service.addAgent(mngUsername, mngPassword, mngEmail, mngFullname, 
-	                		mngUserLevel, isReport, isAdmin, isActive, userType);	             	     	            	
+	                		mngUserLevel, isReport, isAdmin, isActive, userType);
+	                AuthenticationService serviceAgent = new AuthenticationService();
+	                SecurityService securityservice = new SecurityService();
+	                Date currentTime = new Date();
+	                serviceAgent.updateLoginCount(mngUsername, 0);
+	                serviceAgent.updateLoginTime(mngUsername,
+							securityservice.formatDate(currentTime));
+	                serviceAgent.updatePasswordDate(mngUsername, securityservice.formatDate(currentTime));
+	                
+	                
 	            }
 	        }catch(Exception e){
 	        	forward = Constants.ERROR_PAGE_VIEW;
@@ -311,8 +327,10 @@ public class AgentSetup extends DispatchAction {
 	    {
 	    	String forward = "agenttool.agentSetup.manage";
 	    	 boolean result = false;
+	    	 
 	        try{
-	            HttpSession session = request.getSession();            
+	            HttpSession session = request.getSession();  
+	            SecurityService security = new SecurityService();
 	            if(session.getAttribute(Constants.IS_CUSTOMER)==null){
 	            	
 	                LOGGER.info("Execute Action");
@@ -321,17 +339,19 @@ public class AgentSetup extends DispatchAction {
 	                String mngUsername = request.getParameter("mngUsername");
 	                String mngEmail = request.getParameter("mngEmail");
 	                String mngUserLevel = request.getParameter("mngUserLevel");
-	                String mngPassword = request.getParameter("mngPassword");
+	                String tmpPassword = request.getParameter("mngPassword");
 	                String mngFullname = request.getParameter("mngFullname");
+	                String mngPassword= security.encryptPassword(tmpPassword); 
 	                
 	                int isReport = Constants.convertValueEmpty(request.getParameter("mngIsReport")).isEmpty()?Integer.MAX_VALUE:Integer.valueOf(request.getParameter("mngIsReport"));	                
 	                int isAdmin = Constants.convertValueEmpty(request.getParameter("mngIsAdmin")).isEmpty()?Integer.MAX_VALUE:Integer.valueOf(request.getParameter("mngIsAdmin")); 
 	                int isActive = Constants.convertValueEmpty(request.getParameter("mngIsActive")).isEmpty()?Integer.MAX_VALUE:Integer.valueOf(request.getParameter("mngIsActive")); 
 	                int userType = Constants.convertValueEmpty(request.getParameter("mngUserType")).isEmpty()?Integer.MAX_VALUE:Integer.valueOf(request.getParameter("mngUserType")); 
 	                int agentId = Constants.convertValueEmpty(request.getParameter("mngAgentId")).isEmpty()?Integer.MAX_VALUE:Integer.valueOf(request.getParameter("mngAgentId")); 
+	                int agentLoginCount = Integer.valueOf(request.getParameter("mngLoginCount"));
 	  	          
 	                result = service.updateAgent(agentId,mngUsername, mngPassword, mngEmail, mngFullname, 
-	                		mngUserLevel, isReport, isAdmin, isActive, userType);	             	     	            	
+	                		mngUserLevel, isReport, isAdmin, isActive, userType, agentLoginCount);	             	     	            	
 	            }
 	        }catch(Exception e){
 	        	forward = Constants.ERROR_PAGE_VIEW;

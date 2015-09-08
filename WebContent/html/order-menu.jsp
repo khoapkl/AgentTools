@@ -3,6 +3,11 @@
 <%
 Agent agent =(Agent)session.getAttribute(Constants.AGENT_INFO);
 Object isCustomer = session.getAttribute(Constants.IS_CUSTOMER);
+long expiryDays = 0;
+if(session.getAttribute("expiryDays") !=null)
+	{ 
+		expiryDays = (Long)session.getAttribute("expiryDays");
+	}
 %>
 <table id="MenuTable" width="100%" cellspacing="0" cellpadding="0" border="0">
 	<tbody>
@@ -24,8 +29,25 @@ Object isCustomer = session.getAttribute(Constants.IS_CUSTOMER);
 				href="shopper_manager.do"
 				target="_parent"><b>Shoppers </b></a>			
 			
-			<a class="nounderline" href="authenticate.do?method=logout"
-				target="_parent" name="Toolbar"><b><span id="Toolbar3exit.asp">Exit (<%=agent.getUserName() %>)</span></b></a>&nbsp;
+			<ul id="menu">
+			 	 <li><a id="LastLink" class="nounderline"
+							href="#" 
+							target="_parent" name="Toolbar"><b><span
+							id="Toolbar3exit.asp">Logged in as: <%=agent.getUserName()%></span></b></a>
+			         <ul class="sub-menu">
+			            <li>
+							<a class="tooltip-change" href="change_password.do?method=editPassword&expire=0">Change Password
+							</a>	
+							<span id="tooltip-changepwd">
+    							Your password will expire in <%=expiryDays %> days
+							</span>		                
+			            </li>
+			            <li>
+			                <a href="authenticate.do?method=logout">Log Out</a>
+			            </li>
+			        </ul>
+			    </li>
+			</ul>
 			<%
 			}else{
 			%>

@@ -40,10 +40,13 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 
+import com.dell.enterprise.agenttool.DAO.ProductDAO;
 import com.dell.enterprise.agenttool.model.Agent;
 import com.dell.enterprise.agenttool.model.Customer;
 import com.dell.enterprise.agenttool.model.EstoreBasketItem;
+import com.dell.enterprise.agenttool.model.WarrantyPartList;
 import com.dell.enterprise.agenttool.model.OrderRow;
+import com.dell.enterprise.agenttool.model.Product;
 import com.dell.enterprise.agenttool.services.BasketService;
 import com.dell.enterprise.agenttool.services.CheckoutService;
 import com.dell.enterprise.agenttool.services.CustomerServices;
@@ -179,7 +182,7 @@ public class Checkout extends DispatchAction
                      */
                     CheckoutService checkoutService = new CheckoutService();
                     List<EstoreBasketItem> basketItemCheck = checkoutService.getItemCheck(shopper_id,byAgent);
-
+                    
                     //get customer
                     CustomerServices customerServices = new CustomerServices();
                     Customer customer = customerServices.getCustomerByShopperID(shopper_id);
@@ -195,12 +198,48 @@ public class Checkout extends DispatchAction
                     //Get Check category by Shopper
                     int checkCat = checkoutService.getCheckCat(shopper_id,byAgent);
                     
+                    //Get qty of notebook
+                    int qtyNBCat = checkoutService.getCatQty(shopper_id, 11946);
+                    
+                  //Get qty of desktop
+                    int qtyDTCat = checkoutService.getCatQty(shopper_id, 11949);
+                    
+                    //check if warranty already existed in basket
+                    Boolean existWarrantyNB = false;
+                    Boolean existWarrantyDT = false;
+                    for(EstoreBasketItem  estoreBasketItemTemp : basketItemCheck)
+        			{
+                    	if (estoreBasketItemTemp.getCategory_id() == 11940){
+                    		existWarrantyNB = true;
+                    	}
+                    	if (estoreBasketItemTemp.getCategory_id() == 11941){
+                    		existWarrantyDT = true;
+                    	}
+        			}
+                    
+                  //get warranty list
+                    List<WarrantyPartList> listWarrantyPart = null;
+                    if (qtyNBCat > 0 && qtyDTCat > 0 && !existWarrantyNB && !existWarrantyDT){
+                    	listWarrantyPart = checkoutService.getWarrantyPartList(11946, 11949);
+                    }
+                    else if (qtyNBCat > 0 && !existWarrantyNB){
+                    	listWarrantyPart = checkoutService.getWarrantyPartList(11946, 1);
+                    }
+                    else if (qtyDTCat > 0 && !existWarrantyDT){
+                    	listWarrantyPart = checkoutService.getWarrantyPartList(11949, 1);
+                    }
+                    else {
+                        listWarrantyPart = checkoutService.getWarrantyPartList(1,2);
+                    }
                     
                     request.setAttribute(Constants.ATTR_ITEM_BASKET, basketItemCheck);
+                    request.setAttribute(Constants.ATTR_LIST_WARRANTY, listWarrantyPart);
                     request.setAttribute(Constants.ATTR_CUSTOMER, customer);
                     request.setAttribute(Constants.ATTR_ORDER_ROW, orderRow);
                     request.setAttribute(Constants.ATTR_MAX_DISCOUNT, maxDiscount);
                     request.setAttribute(Constants.ATTR_CHECK_CAT, checkCat);
+                    request.setAttribute(Constants.ATTR_QTY_NB, qtyNBCat);
+                    request.setAttribute(Constants.ATTR_QTY_DT, qtyDTCat);
                     
                     if(isCustomer == null)
                     {
@@ -255,10 +294,13 @@ public class Checkout extends DispatchAction
             }
             else
             {
-                //set Discounted Price for each item basket
+            	//set Discounted Price for each item basket
                 checkoutService.setOrderLineItemDiscounts(shopper_id, request);
                 //Set Promotion code null for estore_basket
                 basketService.updatePromotionCodeBasketItem("", shopper_id);
+                Agent agent = (Agent)sessions.getAttribute(Constants.AGENT_INFO);
+                OrderRow orderRow = basketService.getOrder(shopper_id, agent.getAgentId());
+                basketService.updateBasketDiscount(Integer.parseInt(request.getParameter("massdiscount")), Float.parseFloat(request.getParameter("adj_discount")), shopper_id, orderRow.getOrder_id());
             }
         }
         catch (Exception e)

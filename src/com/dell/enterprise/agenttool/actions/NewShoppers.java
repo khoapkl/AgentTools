@@ -97,24 +97,35 @@ public class NewShoppers extends DispatchAction
      **/
     public ActionForward getNewShoppersByYear(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request, final HttpServletResponse response)
     {
+        System.out.println("getNewShoppersByYear0");
         NewShoppersService service = new NewShoppersService();
         String forward = "";
         int year = Constants.I_YEAR();
+        System.out.println("getNewShoppersByYear1");
         if (request.getParameter("year") != null && request.getParameter("type") == null)
         {
+            System.out.println("getNewShoppersByYear2");
             year = Integer.valueOf(request.getParameter("year"));
             forward = Constants.SHOPPER_YEAR_RESULTS;
         }
         else if (request.getParameter("year") != null && request.getParameter("type") != null)
         {
+            System.out.println("getNewShoppersByYear3");
             year = Integer.valueOf(request.getParameter("year"));
             forward = Constants.SHOPPER_YEAR_VIEW;
         }
-        else
+        else{
+            System.out.println("getNewShoppersByYear4");
             forward = Constants.SHOPPER_YEAR_VIEW;
+        }
+        
+        System.out.println("getNewShoppersByYear5");    
+
         Map<Integer, String> newShoppers = service.getNewShoppersByYear(year);
         request.setAttribute("iyear", year);
         request.setAttribute("new_shoppers_by_year", newShoppers);
+
+        System.out.println("getNewShoppersByYear6:" + year + " - " + newShoppers);
 
         return mapping.findForward(forward);
     }

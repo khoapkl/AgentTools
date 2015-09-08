@@ -788,7 +788,7 @@ public class CustomerDAO {
 	            cst.setInt(2, end);         
 	            cst.setString(3, "ship_to_Fname");	          
 	            cst.setString(4, condition.toString());
-	           
+	            LOGGER.info("@@ DEBUG SERACH "+ cst);
 	            rs = cst.executeQuery();
 	            
 	           
@@ -1162,6 +1162,7 @@ public class CustomerDAO {
 	    	    
 	    	    pstmt = conn.prepareStatement(sql);
 	    	    pstmt.setString(1, (inpPostal.length() > 5)?inpPostal.substring(0, 4):inpPostal);
+	    	    LOGGER.info("@@@@ CHECK DATA "+pstmt);
 	    	    rs = pstmt.executeQuery();	
 	    	    boolean isError;
 	    	    String stateFound = "";
@@ -1172,6 +1173,7 @@ public class CustomerDAO {
 	    	    	while (rs.next())
 	    	    	{
 	    				stateFound = rs.getString("state");
+	    				LOGGER.info("@@@@ CHECK CITY  "+rs.getString("city") +" , "+inpCity);
 	    				if (rs.getString("city").equalsIgnoreCase(inpCity)) 
 	    				{
 	    					isError   = false;	    				
@@ -1189,7 +1191,7 @@ public class CustomerDAO {
 	    				pstmt = conn.prepareStatement(sql);
 	    		    	pstmt.setString(1, inpCity);
 	    		    	pstmt.setString(2, (inpPostal.length() > 5)?inpPostal.substring(0, 4):inpPostal);  	    	               
-	    	             
+	    		    	LOGGER.info("@@@@ CHECK DATA22 "+pstmt);
 	    	            rs = pstmt.executeQuery();	
 	    	            
 	    				if (rs.next())
@@ -1201,7 +1203,7 @@ public class CustomerDAO {
 	    					sql = daoUtil.getString("customer.validation.zip3");
 	    					pstmt = conn.prepareStatement(sql);
 		    		    	pstmt.setString(1, (inpPostal.length() > 5)?inpPostal.substring(0, 4):inpPostal);  
-		    	             
+		    		    	LOGGER.info("@@@@ CHECK DATA33 "+pstmt);
 		    	            rs = pstmt.executeQuery();	
 		    	            
 	    					String list_cities = "";

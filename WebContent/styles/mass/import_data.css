@@ -1,0 +1,59 @@
+
+
+#downloadError{
+	display: none;
+}
+
+#wrap-all-error{
+	position: fixed;
+	top: 40%;
+	left: 40%;
+	background-color: white;
+}
+
+
+.wrap-error-status{
+	border: 4px solid #00a2e8;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+.item-error-status{
+	display: block;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+.title-status{
+	font-weight: bold;
+}
+
+.total-data-item{
+	font-weight: bold;
+	color: #000000;
+}
+
+.total-successful-item{
+	font-weight: bold;
+	color: #22b14c;
+}
+
+.total-error-item{
+	font-weight: bold;
+	color: #ed1c24;
+}
+
+.label-upload{
+	font-size: 14px;
+	display: inline-block;
+}
+
+.button-upload{
+	padding: 1px 14px;
+	margin-left: 10px;
+}
+
+.file-upload{
+	padding: 0px 0px 0px 0px;
+	margin-right: 15px;
+}

@@ -6,7 +6,12 @@
 
 <struts-config>
 	<form-beans>
-
+		<form-bean
+			name="fileUploadForm"
+			type="com.dell.enterprise.mass.form.ImportDataForm"/>
+ 		<form-bean
+			name="listProductForm"
+			type="com.dell.enterprise.mass.form.ListProductForm"/>
 	</form-beans>
 	
 	<global-forwards>
@@ -20,7 +25,26 @@
 	<!-- =================================== Action Mapping Definitions -->
 
 	<action-mappings type="org.apache.struts.config.SecureActionConfig">
-		
+		    <!--
+        security setup
+        -->
+        <action 
+			path="/security_setup"  
+			validate="false"
+			type="com.dell.enterprise.agenttool.actions.SecuritySetup"
+			parameter="method">	
+			<forward name="agenttool.securitySetup" path="agenttools.securitySetup"/>
+			<forward name="agenttool.agentSetup" path="agenttools.agentSetup" />	
+		</action>
+		 <action 
+			path="/change_password"  
+			validate="false"
+			type="com.dell.enterprise.agenttool.actions.ChangePassword"
+			parameter="method">	
+			<forward name="agenttool.changePassword" path="agenttools.changePassword"/>
+			<forward name="agenttool.updatePassword" path="agenttools.changePassword"/>
+			<forward name="agenttool.login" path="/authenticate.do?method=login"/>
+		</action>
 		<action 
 			path="/searchProduct" 
 			validate="false"
@@ -70,7 +94,8 @@
 			path="/agent_setup"  validate="false"
 			input="agenttools.agentSetup"
 			type="com.dell.enterprise.agenttool.actions.AgentSetup"
-			parameter="method">
+			parameter="method"
+			scope="request">
 			
 			<forward name="agenttool.agentSetup" path="agenttools.agentSetup" />
 			<forward name="agenttool.agentSetup.result" path="/html/jsp/agent_results.jsp" />
@@ -107,7 +132,9 @@
 			<forward name="agenttools.order_db.shopper.result" path="/html/jsp/order_shopper_result.jsp"/>						
 			<forward name="agenttools.order_db.date" path="agenttools.order_db.date"></forward>
 			<forward name="agenttools.view.creadit.report.order" path="agenttools.view.creadit.report.order"/>
+			<forward name="agenttools.view.inventory.report.order" path="agenttools.view.inventory.report.order"/>
 			<forward name="agenttools.search.creadit.report.order" path="/html/jsp/search_creadit_report_result_order.jsp"/>
+			<forward name="agenttools.search.inventory.report.order" path="/html/jsp/search_inventory_report_result_order.jsp"/>
 			<forward name="agenttools.forward.agent.report" path="agenttools.forward.agent.report"/>
 			<forward name="agenttools.show.processor.agent.report" path="/html/jsp/show_processor.jsp"/>
 			<forward name="agenttools.show.model.agent.report" path="/html/jsp/showmodel.jsp"/>
@@ -124,6 +151,7 @@
 			<forward name="agenttools.agents.order.shopper.ajax" path="/html/jsp/order_by_shopper.jsp"></forward>
 			<forward name="agenttools.list_order_pending_db.more" path="/html/jsp/resultListPendingPaging.jsp"></forward>
 			<forward name="agenttools.export.exel.creadit.report.order" path="/html/jsp/exportExcel.jsp"></forward>
+			<forward name="agenttools.export.exel.inventory.report.order" path="/html/jsp/exportExcel.jsp"></forward>
 			<forward name="agenttools.order_db.customer.outsite" path="agenttools.order_db.customer.outsite"></forward>		
 			<forward name="agenttools.order_db.customer.outsite.page" path="/html/jsp/order_customer_result_outsite.jsp"/>
 			<forward name="agenttools.agents.order.paging" path="/html/jsp/order_agent.jsp"></forward>		
@@ -142,7 +170,8 @@
             <forward name="agenttool.shopper_view" path="agenttool.shopper_view"/>
             <forward name="agenttools.checkout.show" path="agenttools.checkout.show"/>
             <forward name="agenttool.shopper" path="agenttools.shopper" />
-        </action>
+            <forward name="login" redirect="true" path="/authenticate.do"/>
+          </action>
         
         <action 
             path="/login"
@@ -281,6 +310,57 @@
         <action path="/exportOrder" validate="false" type="com.dell.enterprise.agenttool.actions.OrderManagerExport" parameter="method">
         
         </action>
+    	
+    	
+    	
+    	
+    	
+    	<!-- MASS PART -->
+    	
+    	<action
+			path="/massIndex"
+			type="com.dell.enterprise.mass.action.MassDefaultPageAction"
+			parameter="method"
+			scope="request">
+			 <forward name="mass.view.default.page" path="mass.tiles.view.default.page" />
+			 <forward name="agenttool.login.view" path="agenttools.login" />
+		</action>
+    	
+    	<action
+			path="/import"
+			parameter="method"
+			type="com.dell.enterprise.mass.action.MassImportPageAction"
+			scope="request">
+			<forward name="mass.view.import.incoming.page" path="mass.tiles.view.import.incoming.page" />
+			<forward name="mass.view.import.receiving.page" path="mass.tiles.view.import.receiving.page" />
+			<forward name="agenttool.login.view" path="agenttools.login" />
+		</action>
+		
+		<action 
+			path="/listProduct"  
+			validate="false"
+			type="com.dell.enterprise.mass.action.ListProductAction"
+			parameter="method"
+			name="listProductForm"
+			scope="request">
+			<forward name="agenttool.view.receiving.list" path="mass.tiles.view.receiving.page" />
+			<forward name="agenttool.view.inventory.list" path="mass.tiles.view.inventory.page" />
+			<forward name="agenttool.login.view" path="agenttools.login" />
+		</action>
+        
+        <action 
+			path="/upload"  
+			validate="false"
+			type="com.dell.enterprise.mass.action.ImportDataAction"
+			parameter="method"
+			name="fileUploadForm"
+			scope="request">
+			<forward name="agenttool.view.import.data" path="mass.tiles.view.import.incoming.page" />
+			<forward name="agenttool.view.import.data.text" path="mass.tiles.view.import.receiving.page" />
+			<forward name="agenttool.login.view" path="agenttools.login" />
+		</action>
+		
+    	
         
 	</action-mappings>
 

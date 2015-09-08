@@ -296,9 +296,12 @@ public class Basket extends DispatchAction
             cellStyleBoldAlignRight.setFont(font);
             cellStyleBoldAlignRight.setAlignment(CellStyle.ALIGN_RIGHT);
             
+
+            HSSFDataFormat df = wb.createDataFormat();
+
             HSSFCellStyle styleCurrencyFormat = null;
             styleCurrencyFormat = wb.createCellStyle();
-            styleCurrencyFormat.setDataFormat(HSSFDataFormat.getBuiltinFormat("$#,##0.00_);($#,##0.00)"));
+            styleCurrencyFormat.setDataFormat(df.getFormat("$#,##0.00_);($#,##0.00)"));
             styleCurrencyFormat.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
 
             //End Style 

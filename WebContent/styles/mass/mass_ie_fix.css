@@ -1,0 +1,40 @@
+.feature-picture{
+  	float: left;
+  }
+  
+.wrap-sku-item{
+	float:left;
+	top: 0px!important;
+}
+
+.wrap-paging{
+	clear:both;
+}
+ul#menu > li{
+	width: 120px!important;
+}
+
+.sub-menu > li > a{
+	width: 124px!important;
+}
+
+.user-menu{
+	float: left!important;
+}
+.import-files-menu{
+	float: left!important;
+}
+
+.user-menu > a{
+	width: 200px;
+}
+
+.button-upload{
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+
+#wrap-all-error{
+	position: absolute!important;
+	left: 45%!important;
+}

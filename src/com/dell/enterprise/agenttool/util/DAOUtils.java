@@ -35,6 +35,7 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
+import java.util.logging.Logger;
 
 /**
  * @author BINHHT
@@ -49,6 +50,7 @@ public final class DAOUtils
     private DataSource ds;
     private String schema;
     private String dsname;
+
 
     // Private constructor prevents instantiation from other classes
     private DAOUtils()
@@ -116,6 +118,8 @@ public final class DAOUtils
             if (env == null)
             {
                 env = Constants.ENVIRONMENT_DEV;
+                
+                
             }
 
             schema = config.getProperty(env.toLowerCase() + ".schema.name");
@@ -140,12 +144,13 @@ public final class DAOUtils
         try
         {
             Context context = new InitialContext();
+            
             ds = (DataSource) context.lookup("java:/comp/env/" + dsname);
 
             conn = ds.getConnection();
         }
         catch (Exception e)
-        {
+        {  
             throw new Exception("CANNOT CONNECT TO DATABASE:" + e.toString());
         }
 

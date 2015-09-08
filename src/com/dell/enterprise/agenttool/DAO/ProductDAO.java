@@ -230,7 +230,8 @@ public class ProductDAO
             conn = daoUtil.getConnection();
 
             String sql = daoUtil.getString("search.product.bycategory.sp");
-
+            columnAttr = columnAttr.toLowerCase().replace('\'', '"');
+            where_condition = where_condition.replace('\'', '"');
             cst = conn.prepareCall(sql);
             cst.setString(1, columnAttr);
             cst.setString(2, order_by_condition);
@@ -238,7 +239,7 @@ public class ProductDAO
             cst.setInt(4, rowOnPage);
             cst.setString(5, where_condition);
             cst.registerOutParameter(6, java.sql.Types.INTEGER);
-
+            LOGGER.info("@@@@ ERORR SEARCH "+cst);
             //            System.out.println(columnAttr);
             //            System.out.println(order_by_condition);
             //            System.out.println(page);
@@ -246,7 +247,6 @@ public class ProductDAO
             //            System.out.println(where_condition);
 
             rs = cst.executeQuery();
-
             while (rs.next())
             {
                 Product pro = new Product();
@@ -488,7 +488,7 @@ public class ProductDAO
             //			pstmt.setString(2, Constants.STATUS_ITEM_INSTORE);
             //			pstmt.setString(3, Constants.STATUS_ITEM_AUCTION);
             //			pstmt.setString(4, Constants.STATUS_ITEM_UNLISTED);
-
+            System.out.println("Execute DAO searchValueByAttribute NEW:" + pstmt);
             rs = pstmt.executeQuery();
             while (rs.next())
             {
@@ -623,17 +623,19 @@ public class ProductDAO
         try
         {
             LOGGER.info("Execute DAO - Function getItemProduct");
+            LOGGER.info("GET ITEM SKU "+item_sku);
             DAOUtils daoUtil = DAOUtils.getInstance();
             conn = daoUtil.getConnection();
-
+            
             String sql = daoUtil.getString("search.product.item.inventory");
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, item_sku);
-
+            LOGGER.info("getItemProduct Commad line "+pstmt);
             rs = pstmt.executeQuery();
             if (rs.next())
             {
                 product = new Product();
+                product.setCategory_id(rs.getInt("category"));
                 product.setItem_sku(rs.getString("item_sku"));
                 product.setName(rs.getString("name"));
                 product.setShort_description(rs.getString("short_description"));
@@ -690,6 +692,7 @@ public class ProductDAO
             pstmt.setString(7, product.getShort_description());
             pstmt.setInt(8, product.getWeight());
             pstmt.setBoolean(9, byAgent);
+            pstmt.setInt(10, product.getCategory_id());
 
             int x = pstmt.executeUpdate();
             pstmt = null;
@@ -698,7 +701,9 @@ public class ProductDAO
             pstmt = conn.prepareStatement(sql2);
             pstmt.setString(1, product.getItem_sku());
             int y = pstmt.executeUpdate();
-
+            LOGGER.info("@@@@@@ UPDATE STATUS Command "+pstmt);
+            LOGGER.info("@@@@@@ UPDATE STATUS getItem_sku "+product.getItem_sku());
+            LOGGER.info("@@@@@@ UPDATE STATUS RESULT  "+y);
             if (x > 0 && y > 0)
             {
                 Flag = true;
@@ -739,6 +744,84 @@ public class ProductDAO
         }
         return Flag;
     }
+    
+    public Boolean orderAddWarrantyItem(String shopper_id, Product product, Boolean byAgent)
+    {
+        Boolean Flag = false;
+        try
+        {
+            LOGGER.info("Execute ProducDAO - Function BasketItemExists ");
+            DAOUtils daoUtil = DAOUtils.getInstance();
+            conn = daoUtil.getConnection();
+            conn.setAutoCommit(false);
+
+            String sql1 = daoUtil.getString("product.basket.item.add");
+            pstmt = conn.prepareStatement(sql1);
+            pstmt.setString(1, shopper_id);
+            pstmt.setString(2, product.getMfg_part_number());
+            pstmt.setString(3, product.getItem_sku());
+            pstmt.setInt(4, 1);
+            pstmt.setFloat(5, product.getList_price() * 100);
+            //pstmt.setFloat(5, 0);
+            pstmt.setString(6, product.getName());
+            pstmt.setString(7, product.getShort_description());
+            pstmt.setInt(8, product.getWeight());
+            pstmt.setBoolean(9, byAgent);
+            pstmt.setInt(10, product.getCategory_id());
+
+            int x = pstmt.executeUpdate();
+            pstmt = null;
+
+            /**
+            String sql2 = daoUtil.getString("product.inventory.item.updateStatus");
+            pstmt = conn.prepareStatement(sql2);
+            pstmt.setString(1, product.getItem_sku());
+            int y = pstmt.executeUpdate();
+
+            if (x > 0 && y > 0)
+            {
+                Flag = true;
+            }
+            **/
+            
+            if (x > 0) Flag = true;
+        }
+        catch (Exception e)
+        {
+            LOGGER.warning("ERROR Execute DAO");
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (Flag)
+                {
+                    conn.commit();
+                }
+                else
+                {
+                    conn.rollback();
+                }
+                conn.setAutoCommit(true);
+
+                if (rs != null)
+                    rs.close();
+                if (stmt != null)
+                    stmt.close();
+                if (pstmt != null)
+                    pstmt.close();
+                if (conn != null)
+                    conn.close();
+            }
+            catch (SQLException sqlE)
+            {
+                sqlE.getStackTrace();
+            }
+        }
+        return Flag;
+    }
+
 
     public Product basketItemExists(String item_sku)
     {
@@ -753,6 +836,64 @@ public class ProductDAO
             String sql = daoUtil.getString("product.basket.item.exists");
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, item_sku);
+
+            rs = pstmt.executeQuery();
+            if (rs.next())
+            {
+                //Flag = true;
+
+                product = new Product();
+                product.setShopper_id(rs.getString("shopper_id"));
+                product.setItem_sku(rs.getString("item_sku"));
+                product.setName(rs.getString("name"));
+                product.setShort_description(rs.getString("short_description"));
+                product.setMfg_part_number(rs.getString("mfg_part_number"));
+                product.setList_price(rs.getFloat("placed_price"));
+                //product.setFlagtype(rs.getString("flagType"));
+                product.setWeight(rs.getInt("weight"));
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.warning("ERROR Execute DAO");
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (rs != null)
+                    rs.close();
+                if (stmt != null)
+                    stmt.close();
+                if (pstmt != null)
+                    pstmt.close();
+                if (conn != null)
+                    conn.close();
+            }
+            catch (SQLException sqlE)
+            {
+                sqlE.getStackTrace();
+            }
+        }
+
+        return product;
+    }
+    
+    public Product basketWarrantyItemExists(String item_sku, String shopper_id)
+    {
+        //Boolean Flag = false;
+        Product product = null;
+        try
+        {
+            LOGGER.info("Execute ProducDAO - Function BasketItemExists ");
+            DAOUtils daoUtil = DAOUtils.getInstance();
+            conn = daoUtil.getConnection();
+
+            String sql = daoUtil.getString("product.basket.warranty.item.exists");
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, item_sku);
+            pstmt.setString(2, shopper_id);
 
             rs = pstmt.executeQuery();
             if (rs.next())
@@ -823,6 +964,7 @@ public class ProductDAO
             pstmt.setBoolean(2, byAgent);
 
             int x = pstmt.executeUpdate();
+            LOGGER.info("@@@@ DEBUG ITEM "+pstmt+"  result "+x);
             pstmt = null;
 
             //Delete from estore_basket_item
@@ -878,6 +1020,7 @@ public class ProductDAO
     public Boolean deleteOrderItem(String shopper_id, String sku)
     {
         Boolean Flag = false;
+        int x = 0;
 
         try
         {
@@ -885,12 +1028,17 @@ public class ProductDAO
             DAOUtils daoUtil = DAOUtils.getInstance();
             conn = daoUtil.getConnection();
             conn.setAutoCommit(false);
-
-            String sql1 = daoUtil.getString("product.inventory.item.update.bySku");
-            pstmt = conn.prepareStatement(sql1);
-            pstmt.setString(1, sku);
-
-            int x = pstmt.executeUpdate();
+            
+            if (!sku.contains("WARRANTY")){
+	            String sql1 = daoUtil.getString("product.inventory.item.update.bySku");
+	            pstmt = conn.prepareStatement(sql1);
+	            pstmt.setString(1, sku);
+	
+	            x = pstmt.executeUpdate();
+            }
+            else {
+            	x = 1;
+            }
             pstmt = null;
 
             String sql2 = daoUtil.getString("product.basket.item.delete");

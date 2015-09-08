@@ -29,6 +29,7 @@ package com.dell.enterprise.agenttool.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import com.sun.xml.internal.bind.v2.TODO;
 
@@ -234,7 +235,7 @@ public class OrderDate implements Serializable
      */
     public BigDecimal getDiscMax()
     {
-        return discMax = discMax.setScale(2);
+        return discMax = discMax.setScale(2, BigDecimal.ROUND_HALF_EVEN);
     }
 
     /**
@@ -251,7 +252,15 @@ public class OrderDate implements Serializable
      */
     public BigDecimal getDiscMin()
     {
-        return discMin = discMin.setScale(2);
+    	try {
+    		if (discMin != null){
+        		discMin = discMin.setScale(2, RoundingMode.HALF_UP);
+        	}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+        return discMin;
     }
 
     /**

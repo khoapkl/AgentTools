@@ -53,7 +53,7 @@ public class OrderDAOImpl
             query = query.concat("(T1.shopper_id IS NOT NULL)");
 
             if (!orderSearch.get(0).equals(""))//ordernumber
-                query = query + AND + "T1.orderNumber = " + orderSearch.get(0) + " ";
+                query = query + AND + "T1.orderNumber = '" + orderSearch.get(0) + "' ";
 
             if (!orderSearch.get(2).equals(""))//itemsku
                 query = query + AND + "T1.orderNumber in (select orderNumber from orderline where item_sku like '%" + orderSearch.get(2).replace("_", "\\_").replace("%", "\\%") + "%' escape '\\') ";
@@ -188,7 +188,7 @@ public class OrderDAOImpl
         try
         {
             if (!criteria.getOrderId().equals(""))
-                query += " and t1.orderNumber = " + criteria.getOrderId() + " ";
+                query += " and t1.orderNumber = '" + criteria.getOrderId() + "' ";
             if (!criteria.getCustomerId().equals(""))
                 query += " and t2.shopper_number like '%" + criteria.getCustomerId().replace("_", "\\_").replace("%", "\\%") + "%' escape '\\' ";
             if (!criteria.getItemSku().equals(""))

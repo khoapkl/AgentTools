@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -47,6 +48,7 @@ import com.dell.enterprise.agenttool.DAO.CheckoutDAO;
 import com.dell.enterprise.agenttool.model.Avg_mhz;
 import com.dell.enterprise.agenttool.model.Customer;
 import com.dell.enterprise.agenttool.model.EstoreBasketItem;
+import com.dell.enterprise.agenttool.model.WarrantyPartList;
 import com.dell.enterprise.agenttool.model.OrderHeader;
 import com.dell.enterprise.agenttool.model.OrderLine;
 import com.dell.enterprise.agenttool.model.PayMethods;
@@ -60,12 +62,19 @@ import com.dell.enterprise.agenttool.util.Constants;
 
 public class CheckoutService
 {
+	private static final Logger LOGGER = Logger.getLogger("com.dell.enterprise.agenttool.services.CheckoutService");
     public List<EstoreBasketItem> getItemCheck(String shopper_id, Boolean byAgent)
     {
         CheckoutDAO checkoutDAO = new CheckoutDAO();
         return checkoutDAO.getItemCheck(shopper_id, byAgent);
     }
 
+    public List<WarrantyPartList> getWarrantyPartList(int warrantyCat1, int warrantyCat2)
+    {
+        CheckoutDAO checkoutDAO = new CheckoutDAO();
+        return checkoutDAO.getWarrantyList(warrantyCat1, warrantyCat2);
+    }
+    
     public List<Float> utilGetDiscount(Customer customer, String item_sku, Float orig_price, Float place_price)
     {
         Float discount = new Float(0);
@@ -300,6 +309,7 @@ public class CheckoutService
         HttpSession sessions = request.getSession();
         Object isCustomer = sessions.getAttribute(Constants.IS_CUSTOMER);
         Boolean byAgent = true;
+        int warrantyQty = 0;
         if (isCustomer != null && ((Boolean) isCustomer).booleanValue())
         {
             byAgent = false;
@@ -313,9 +323,63 @@ public class CheckoutService
         for (EstoreBasketItem estoreBasketItem : listEstoreBasketItem)
         {
             String item_sku = estoreBasketItem.getItem_sku();
-            Float newPrice = Float.parseFloat(request.getParameter("LIDiscount" + item_sku).toString().substring(1)) * 100;
-            newPrice = Constants.FloatRound(newPrice);
-            checkoutDAO.setOrderLineItemDiscount(newPrice, shopper_id, item_sku);
+            
+            //LOGGER.info("Error Execute CheckoutService" + request.getParameter(item_sku + "buy").toString());
+            System.out.println("Warranty: " + request.getParameter(item_sku + "buy"));
+            if (request.getParameter(item_sku + "buy") == null && item_sku.trim().contains("WARRANTY"))
+            {	
+            	System.out.println("Delete warranty: " + item_sku);
+            	checkoutDAO.deleteWarrantyItem(shopper_id, item_sku, byAgent);
+            }
+            else if (item_sku.trim().contains("WARRANTY"))
+            {
+            	if (request.getParameter(item_sku + "buy").toString().contains("on"))
+            	{
+	            	System.out.println("Update warranty: " + item_sku);
+	            	Float newPrice = Float.parseFloat(request.getParameter("LIDiscount" + item_sku).toString().substring(1).replace(",","")) * 100;
+	            	int qty = (int) Float.parseFloat(request.getParameter("qty" + item_sku).toString());
+	            	newPrice = Constants.FloatRound(newPrice);
+	                System.out.println(qty);
+	            	checkoutDAO.setOrderLineUpdateWarranty(newPrice, shopper_id, item_sku, qty, byAgent);
+            	}
+            }
+            else
+            {
+            	Float newPrice = Float.parseFloat(request.getParameter("LIDiscount" + item_sku).toString().substring(1).replace(",","")) * 100;
+                newPrice = Constants.FloatRound(newPrice);
+                checkoutDAO.setOrderLineItemDiscount(newPrice, shopper_id, item_sku);
+            }
+            	
+        }
+        
+        if ((!request.getParameter("sku_list").contains("WARRANTY_DT")) && ((int) Float.parseFloat(request.getParameter("warrantyDT").toString()) > 0)){
+        	if (request.getParameter("WARRANTY_DTnew") != null)
+        	{
+	        	if (request.getParameter("WARRANTY_DTnew").toString().contains("on")){
+		        	System.out.println(request.getParameter("LIDiscountWARRANTY_DT").toString());
+		        	Float newPrice = Float.parseFloat(request.getParameter("LIDiscountWARRANTY_DT").toString().substring(1).replace(",",""))  * 100;
+		        	warrantyQty = (int) Float.parseFloat(request.getParameter("qtyWARRANTY_DT").toString());
+		        	
+		            newPrice = Constants.FloatRound(newPrice);
+		            
+		            checkoutDAO.setOrderLineAddWarranty(newPrice, shopper_id, "WARRANTY_DT", warrantyQty, 11941, newPrice, byAgent);
+		        }
+        	}
+        }
+        
+        if ((!request.getParameter("sku_list").contains("WARRANTY_NB")) && ((int) Float.parseFloat(request.getParameter("warrantyNB").toString()) > 0)){
+        	if (request.getParameter("WARRANTY_NBnew") != null)
+        	{
+	        	if (request.getParameter("WARRANTY_NBnew").toString().contains("on")){
+		        	Float newPrice = Float.parseFloat(request.getParameter("LIDiscountWARRANTY_NB").toString().substring(1).replace(",",""))  * 100;
+		        	warrantyQty = (int) Float.parseFloat(request.getParameter("qtyWARRANTY_NB").toString());
+		        	
+		        	//newPrice = Constants.FloatRound(newPrice);
+		            newPrice = Constants.FloatRound(newPrice);
+		            //System.out.println(newPrice);
+		            checkoutDAO.setOrderLineAddWarranty(newPrice, shopper_id, "WARRANTY_NB", warrantyQty, 11940, newPrice, byAgent);
+		        }
+        	}
         }
     }
 
@@ -421,6 +485,12 @@ public class CheckoutService
         CheckoutDAO checkoutDAO = new CheckoutDAO();
         return checkoutDAO.getCheckCat(shopper_id,byAgent);
     }
+    
+    public int getCatQty(String shopper_id, int category_id)
+    {
+        CheckoutDAO checkoutDAO = new CheckoutDAO();
+        return checkoutDAO.getQtyCat(shopper_id,category_id);
+    }
 
     public int getHoldDays()
     {
@@ -455,7 +525,7 @@ public class CheckoutService
     {
 
     	Map<String, String> objResponse = new HashMap<String, String>();
-        String GatewayHost = "https://pilot-payflowpro.paypal.com";
+    	String GatewayHost = "https://pilot.paypal.com";
 
         String strExpDate = "&EXPDATE=";
         if (orderHeader.getCc_expmonth() < 10)
@@ -470,10 +540,10 @@ public class CheckoutService
 
         String parmList = "";
         parmList = parmList + "TENDER=C";
-        parmList = parmList + "&PWD=vncard1";
-        parmList = parmList + "&USER=vncardtest";
-        parmList = parmList + "&VENDOR=mrifordfsdirect";
-        parmList = parmList + "&PARTNER=verisign";
+        parmList = parmList + "&PWD=dfsauth0d";
+        parmList = parmList + "&USER=magrabbit";
+        parmList = parmList + "&VENDOR=magrabbit";
+        parmList = parmList + "&PARTNER=Verisign";
         parmList = parmList + "&ACCT=" + orderHeader.getCc_number();
         parmList = parmList + strExpDate;
         parmList = parmList + "&CVV2=" + orderHeader.getCc_cvv2();
@@ -485,6 +555,7 @@ public class CheckoutService
         parmList = parmList + "&STATE=" + orderHeader.getBill_to_state();
         parmList = parmList + "&STREET=" + orderHeader.getBill_to_address1();
         parmList = parmList + "&ZIP=" + orderHeader.getBill_to_postal();
+
 
         try
         {

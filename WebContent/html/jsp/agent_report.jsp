@@ -9,6 +9,7 @@ List<String> listDesktop = (List<String>)request.getAttribute(Constants.ORDER_AG
 List<String> listWorkstation = (List<String>)request.getAttribute(Constants.ORDER_AGENT_REPORT_BrandWorkstation);
 
 List<String> listPart = (List<String>)request.getAttribute(Constants.ORDER_AGENT_REPORT_BrandPart);
+List<String> listWarranty = (List<String>)request.getAttribute(Constants.ORDER_AGENT_REPORT_BrandWarranty);
 List<String> listCosmetic = (List<String>)request.getAttribute(Constants.ORDER_AGENT_REPORT_COSMETIC);
 %>
 
@@ -28,7 +29,7 @@ List<String> listCosmetic = (List<String>)request.getAttribute(Constants.ORDER_A
 			<tr>
 				<td align="left" valign="middle" width="140">Operating
 				System:&nbsp;</td>
-				<td align="left"><input type="radio" name="ostype" value="win"
+				<td align="left"><input type="radio" name="ostype" value="%win"
 					name="Yes" onclick="selectOS(this.value);" />Yes <input
 					type="radio" name="ostype" value="no" name="No"
 					onclick="selectOS(this.value);" />No <input
@@ -74,7 +75,7 @@ List<String> listCosmetic = (List<String>)request.getAttribute(Constants.ORDER_A
 							<option value="11961">Storage</option>
 							<option value="11962">Networking</option>
 							<option value="11963">Parts</option>
-							
+							<option value="11940">Warranty</option>
 						</select></td>
 						<td><input type="button" id="idAddSrcToDestList" value=" >> "
 							onClick="addSrcToDestList(report.catList,report.catselList)"><br />
@@ -121,6 +122,10 @@ List<String> listCosmetic = (List<String>)request.getAttribute(Constants.ORDER_A
 							<option value="">--Parts--</option>
 							<%if(null != listPart&& !listPart.isEmpty()) for(String str3 : listPart){ %>
 							<option value="<%=str3 %>"><%=str3 %></option>
+							<%} %>
+							<option value="">--Warranty--</option>
+							<%if(null != listWarranty&& !listWarranty.isEmpty()) for(String str7 : listWarranty){ %>
+							<option value="<%=str7 %>"><%=str7 %></option>
 							<%} %>
 						</select></td>
 						<td><input type="button" value=" >> "

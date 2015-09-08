@@ -99,6 +99,8 @@ public class OrderRow implements Serializable
     private String epp_id;
     private String ship_terms;
     private Float ship_cost;
+    private int discount_type;
+    private Float discount_value;
 
     /**
      * @return the shopper_id
@@ -319,5 +321,25 @@ public class OrderRow implements Serializable
     public void setShip_cost(Float shipCost)
     {
         ship_cost = shipCost;
+    }
+    
+    public int getDiscount_type()
+    {
+        return discount_type;
+    }
+    
+    public void setDiscount_type(int discountType)
+    {
+        discount_type = discountType;
+    }
+    
+    public Float getDiscount_value()
+    {
+        return discount_value;
+    }
+    
+    public void setDiscount_value(Float discountValue)
+    {
+    	discount_value = discountValue;
     }
 }

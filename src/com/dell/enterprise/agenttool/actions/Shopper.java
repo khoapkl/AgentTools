@@ -18,11 +18,13 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 
+import com.dell.enterprise.agenttool.DAO.ProductDAO;
 import com.dell.enterprise.agenttool.actions.validation.ShopperCheckoutValidation;
 import com.dell.enterprise.agenttool.model.Agent;
 import com.dell.enterprise.agenttool.model.Customer;
 import com.dell.enterprise.agenttool.model.EppPromotionRow;
 import com.dell.enterprise.agenttool.model.EstoreBasketItem;
+import com.dell.enterprise.agenttool.model.Product;
 import com.dell.enterprise.agenttool.model.SiteReferral;
 import com.dell.enterprise.agenttool.services.AuthenticationService;
 import com.dell.enterprise.agenttool.services.BasketService;
@@ -1163,5 +1165,26 @@ public class Shopper extends DispatchAction
 
         // send the email
         email.send();
+    }
+    
+    public ActionForward addWarranty(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request, final HttpServletResponse response) throws Exception
+    {
+    	HttpSession sessions = request.getSession();
+        Boolean flag = true;
+        ProductDAO productDAO = new ProductDAO();
+        String shopperId = sessions.getAttribute(Constants.SHOPPER_ID).toString();
+        Object isCustomer = sessions.getAttribute(Constants.IS_CUSTOMER);
+        
+        Boolean byAgent = true;
+        if (isCustomer != null && ((Boolean) isCustomer).booleanValue())
+        {
+            byAgent = false;
+        }
+        else
+        {
+            byAgent = true;
+        }
+    	
+    	return mapping.findForward("agenttools.checkout.show");
     }
 }

@@ -172,9 +172,11 @@ public class AgentDAO {
 	            cst.setInt(2, end);         
 	            cst.setString(3, "UserName");	          
 	            cst.setString(4, condition.toString());
-	           
+	            cst.registerOutParameter(5, java.sql.Types.INTEGER);
+	            System.out.println("search all agent:" + cst);
 	            rs = cst.executeQuery();
 	            
+	            int totalRecord = cst.getInt(5);
 	           
 	            while (rs.next())
 	            {  
@@ -188,10 +190,13 @@ public class AgentDAO {
 	            	tmpAgent.setActive(rs.getBoolean("Active"));
 	            	tmpAgent.setUserType(rs.getBoolean("UserType"));
 	            	tmpAgent.setReport(rs.getBoolean("Report"));
-	            	tmpAgent.setTotalRow(rs.getInt("TotalRow"));
+	            	tmpAgent.setLoginCount(rs.getInt("loginCount"));
+	            	tmpAgent.setTotalRow(totalRecord);
 	            	
 	               	result.add(tmpAgent);		       
 	            }
+	            
+	            
 	        }
 	        catch (Exception e)
 	        {
@@ -213,7 +218,7 @@ public class AgentDAO {
 	}
 	    
 	public boolean updateAgent(int agentId, String mngUsername,String mngPassword,String mngEmail,String mngFullname, 
-				String mngUserLevel,int isReport,int isAdmin,int isActive,int userType)
+				String mngUserLevel,int isReport,int isAdmin,int isActive,int userType, int loginCount)
 	{
 	    	boolean result = false;
 	    	
@@ -233,8 +238,9 @@ public class AgentDAO {
 	             pstmt.setInt(5,isActive);	
 	             pstmt.setString(6,mngEmail.trim().replaceAll("'", "''"));	
 	             pstmt.setString(7,mngFullname.trim().replaceAll("'", "''"));	
-	             pstmt.setInt(8,isReport);	
-	             pstmt.setInt(9,agentId);
+	             pstmt.setInt(8,isReport);
+	             pstmt.setInt(9,loginCount);
+	             pstmt.setInt(10,agentId);
 	             
 		         result = pstmt.execute();     	    		
 		     }
@@ -282,6 +288,8 @@ public class AgentDAO {
              pstmt.setString(7,mngEmail.trim().replaceAll("'", "''"));	
              pstmt.setString(8,mngFullname.trim().replaceAll("'", "''"));	
              pstmt.setInt(9,isReport);	
+             
+             System.out.println("pstmt addAgent:" + pstmt );
              
 	         result = pstmt.execute();     	    		
 	     }
@@ -454,6 +462,7 @@ public class AgentDAO {
 	                agent.setAgentName(Constants.convertValueEmpty(rs.getString("fullname")));
 	                agent.setAgentEmail(Constants.convertValueEmpty(rs.getString("email")));
 	                agent.setReport(rs.getBoolean("report"));
+	                agent.setLoginCount(rs.getInt("loginCount"));
 	            }
 	        }
 	        catch (Exception e)

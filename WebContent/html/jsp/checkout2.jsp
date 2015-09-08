@@ -158,9 +158,10 @@ if (pageName != "")
 function submitForm(arrCount) {	
     // must select one shipment method
 		<% 	if (usingManager) { %>
-				updShip(document.payinfo, arrCount);				
-				if (document.payinfo.shipvia[arrCount].checked) 
+		updShip(document.payinfo, arrCount);	
+		if (document.payinfo.shipvia[arrCount].checked) 
 				{
+					
 					if (check_shipterms(document.payinfo)) 
 					{
 						dialogOpen();
@@ -244,7 +245,7 @@ function formatCurrency(num) {
 function updShip(theForm, arrCount) {
 	if (theForm.shipvia[arrCount].checked) {
 		var Item = theForm.ship_terms_vis.selectedIndex;
-		theForm.ship_terms.value = theForm.ship_terms_vis[Item].value;		
+		theForm.ship_terms.value = theForm.ship_terms_vis[Item].value;	
 	} else {
 		theForm.ship_terms.value = "";
 	}

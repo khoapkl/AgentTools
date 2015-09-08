@@ -300,9 +300,15 @@ function removeModel(brandselList, catselList, processorselList, date1, date2)
 				if ((document.report.catselList.length > 0) && (document.report.brandselList.length > 0) && (document.report.modelselList.length > 0) && (document.report.processorselList.length > 0)){
 					for (var i = 0; i < document.report.catselList.length; i++){
 						if ((catID.length) > 0)
-							catID = catID + ", '" + document.report.catselList.options[i].value + "'";
+							if ((document.report.catselList.options[i].value == "11940") || (document.report.catselList.options[i].value == "11941"))
+								catID = catID + ", '" + document.report.catselList.options[i].value + "', '11941'";
+							else
+								catID = catID + ", '" + document.report.catselList.options[i].value + "'";
 						else
-							catID = "'" + document.report.catselList.options[i].value + "'";
+							if ((document.report.catselList.options[i].value == "11940") || (document.report.catselList.options[i].value == "11941"))
+								catID = "'" + document.report.catselList.options[i].value + "', '11941'";
+							else
+								catID = "'" + document.report.catselList.options[i].value + "'";
 					}
 					
 					for (var i = 0; i < document.report.brandselList.length; i++){
@@ -352,9 +358,15 @@ function removeModel(brandselList, catselList, processorselList, date1, date2)
 					
 					for (var i = 0; i < document.report.catselList.length; i++){
 						if ((catID.length) > 0)
-							catID = catID + ", '" + document.report.catselList.options[i].value + "'";
+							if ((document.report.catselList.options[i].value == "11940") || (document.report.catselList.options[i].value == "11941"))
+								catID = catID + ", '" + document.report.catselList.options[i].value + "', '11941'";
+							else
+								catID = catID + ", '" + document.report.catselList.options[i].value + "'";
 						else
-							catID = "'" + document.report.catselList.options[i].value + "'";
+							if ((document.report.catselList.options[i].value == "11940") || (document.report.catselList.options[i].value == "11941"))
+								catID = "'" + document.report.catselList.options[i].value + "', '11941'";
+							else
+								catID = "'" + document.report.catselList.options[i].value + "'";
 					}
 					for (var i = 0; i < document.report.brandselList.length; i++){
 						str = document.report.brandselList.options[i].value;
@@ -392,13 +404,19 @@ function removeModel(brandselList, catselList, processorselList, date1, date2)
 				if (document.report.catselList.length > 0){
 					for (var i = 0; i < document.report.catselList.length; i++){
 						if ((catID.length) > 0)
-							catID = catID + ", '" + document.report.catselList.options[i].value + "'";
+							if ((document.report.catselList.options[i].value == "11940") || (document.report.catselList.options[i].value == "11941"))
+								catID = catID + ", '" + document.report.catselList.options[i].value + "', '11941'";
+							else
+								catID = catID + ", '" + document.report.catselList.options[i].value + "'";
 						else
-							catID = "'" + document.report.catselList.options[i].value + "'";
+							if ((document.report.catselList.options[i].value == "11940") || (document.report.catselList.options[i].value == "11941"))
+								catID = "'" + document.report.catselList.options[i].value + "', '11941'";
+							else
+								catID = "'" + document.report.catselList.options[i].value + "'";
 					}
 					
 					// if catID.search("11961") != -1 is true then check user choose Brand Type 
-					if(catID.search("11961") != -1 || catID.search("11962") != -1 || catID.search("11963")  != -1){
+					if(catID.search("11961") != -1 || catID.search("11962") != -1 || catID.search("11963")  != -1 || catID.search("11940")  != -1 || catID.search("11941")  != -1){
 						
 						if(document.report.brandselList.length>0){
 							for (var i = 0; i < document.report.brandselList.length; i++){

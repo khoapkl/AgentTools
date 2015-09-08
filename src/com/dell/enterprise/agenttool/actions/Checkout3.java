@@ -390,15 +390,15 @@ public class Checkout3 extends DispatchAction
             }
             else
             {
+                //Send Mail for Customer
+                //if (isCustomer != null)
+                //{
+                //    if (sendMailNotify(orderHeader, request))
+                //        errorList.add("Error, system can't send mail for Agent. Please contact administrator.");
+
+                //}
+
                 //Send Mail for Agent
-                if (isCustomer != null)
-                {
-                    if (sendMailNotify(orderHeader, request))
-                        errorList.add("Error, system can't send mail for Agent. Please contact administrator.");
-
-                }
-
-                //Send Mail for customer
 
                 //if (sendMailNotifyCustomer(orderHeader, request))
                 //errorList.add("Error, system can't send mail for Customer. Please contact administrator.");
@@ -478,6 +478,7 @@ public class Checkout3 extends DispatchAction
         //        Float taxCost = new Float(0);
         Float orderTotal = new Float(0);
         Float Fee = new Float(0);
+        Float warranty_Total = new Float(0);
 
         String cc_type = "";
         String cc_name = "";
@@ -615,7 +616,11 @@ public class Checkout3 extends DispatchAction
         if (request.getParameter("Fee") != null)
         {
             Fee = Float.parseFloat(request.getParameter("Fee").toString());
-            
+        }
+        
+        if (request.getParameter("WarrantyTotal") != null)
+        {
+        	warranty_Total = Float.parseFloat(request.getParameter("WarrantyTotal").toString());
         }
 
         OrderRow orderRow = basketService.getOrder(shopper_id, agent.getAgentId());
@@ -686,11 +691,11 @@ public class Checkout3 extends DispatchAction
         orderHeader.setCc_type(cc_type);
         orderHeader.setTaxable(true);
         orderHeader.setOrderStatus("PENDING");
-        orderHeader.setStatetaxperc(orderSubtotal / 100 * taxTables.getStateTax().floatValue());
-        orderHeader.setCountytaxperc(orderSubtotal / 100 * taxTables.getCountyTax().floatValue());
-        orderHeader.setCountytrantaxperc(orderSubtotal / 100 * taxTables.getCountyTransTax().floatValue());
-        orderHeader.setCitytaxperc(orderSubtotal / 100 * taxTables.getCityTax().floatValue());
-        orderHeader.setCitytrantaxperc(orderSubtotal / 100 * taxTables.getCityTranTax().floatValue());
+        orderHeader.setStatetaxperc(taxTables.getStateTax().floatValue() * 100);
+        orderHeader.setCountytaxperc(taxTables.getCountyTax().floatValue() * 100);
+        orderHeader.setCountytrantaxperc(taxTables.getCountyTransTax().floatValue() * 100);
+        orderHeader.setCitytaxperc(taxTables.getCityTax().floatValue() * 100);
+        orderHeader.setCitytrantaxperc(taxTables.getCityTranTax().floatValue()* 100);
 
         orderHeader.setAgentIDEnter(agent.getAgentId());
         //Object isCustomer = sessions.getAttribute(Constants.IS_CUSTOMER);
@@ -709,6 +714,7 @@ public class Checkout3 extends DispatchAction
         orderHeader.setIp_address(request.getRemoteAddr());
         orderHeader.setTotal_disc(new BigDecimal(listPricetotal - orderSubtotal));
         orderHeader.setDiscount_total(new BigDecimal(listPricetotal - orderSubtotal));
+        orderHeader.setWarranty_total(new BigDecimal(warranty_Total));
         orderHeader.setTotal_list(new BigDecimal(listPricetotal));
         orderHeader.setListingtype("Agent");
         orderHeader.setAvs_address("Y");
@@ -761,7 +767,7 @@ public class Checkout3 extends DispatchAction
             orderLine.setItem_sku(estoreBasketItem.getItem_sku());
             orderLine.setDescription(estoreBasketItem.getName());
             orderLine.setWeight(new BigDecimal(estoreBasketItem.getWeight()));
-            orderLine.setQuantity(1);
+            orderLine.setQuantity(estoreBasketItem.getQuantity());
             orderLine.setQtyPicked(0);
             orderLine.setQtyShipped(0);
             orderLine.setProduct_list_price(new BigDecimal(estoreBasketItem.getList_price()));
@@ -1147,6 +1153,7 @@ public class Checkout3 extends DispatchAction
             Float lidisc_amnt = new Float(0);
             Float totalMhz = new Float(0);
             Float totalPriceMhz = new Float(0);
+            Float warrantyTotal = new Float(0);
             Float percentTDis = new Float(0);
             Float shipCost = new Float(0);
             Float taxCost = new Float(0);
@@ -1165,8 +1172,17 @@ public class Checkout3 extends DispatchAction
             
             for (EstoreBasketItem estoreBasketItem : listEstoreBasketItem)
             {
-                stsubtotal_amt = stsubtotal_amt + estoreBasketItem.getList_price();
+                //stsubtotal_amt = stsubtotal_amt + estoreBasketItem.getList_price();
+                
+                if (estoreBasketItem.getItem_sku().contains("WARRANTY")){
+                	stsubtotal_amt = stsubtotal_amt + estoreBasketItem.getPlaced_price();
+               	 	warrantyTotal = warrantyTotal + estoreBasketItem.getPlaced_price();
+                }
+                else
+                	stsubtotal_amt = stsubtotal_amt + estoreBasketItem.getList_price();
+                
                 stsum = stsum + estoreBasketItem.getPlaced_price();
+                
                 if(estoreBasketItem.getSpeed().floatValue() > 0)
                 {
                     totalMhz = totalMhz + estoreBasketItem.getSpeed();    
@@ -1176,7 +1192,7 @@ public class Checkout3 extends DispatchAction
             }
             totalPriceMhz = (totalMhz.floatValue() == 0 ) ? 0 :  (moneyByMhz / 100) / totalMhz;
             lidisc_amnt = (stsubtotal_amt - stsum)/100;
-            percentTDis = lidisc_amnt / (stsubtotal_amt / 100);
+            percentTDis = lidisc_amnt / ((stsubtotal_amt - warrantyTotal) / 100);
             
             
             //Check Tax Exempt of customer

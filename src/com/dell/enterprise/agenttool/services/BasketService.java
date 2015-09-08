@@ -141,6 +141,12 @@ public class BasketService
         return basketDAO.updatePromotionCodeBasketItem(epp_id, shopper_id);
     }
 
+    public int updateBasketDiscount(int discount_type, Float discount_value, String shopper_id, String order_number)
+    {
+        BasketDAO basketDAO = new BasketDAO();
+        return basketDAO.updateBasketDiscount(discount_type, discount_value, shopper_id, order_number);
+    }
+    
     //HuyNVT
     public EppPromotionRow getEppPromotionRow(String epp_id)
     {

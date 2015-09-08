@@ -1,0 +1,146 @@
+-- --------------------------------------------------------------------------------
+-- Routine DDL
+-- Note: comments before and after the routine body will not be stored by the server
+-- --------------------------------------------------------------------------------
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspGetOrderHeld`(
+
+    IN SelectedPage int,
+
+    IN PageSize int,
+
+    IN DataType varchar(255),
+
+    IN AgentID varchar(255),
+
+    OUT TotalRecord int
+
+)
+BEGIN
+
+DECLARE StartRecord int;
+
+DECLARE EndRecord int;
+
+DECLARE TableOrViewName varchar(500);
+
+DECLARE ColumnNames varchar(3000);
+
+DECLARE GroupBy varchar(1000);
+
+DECLARE SortColumn varchar(255);
+
+DECLARE WhereClause varchar(255);
+
+
+
+SET TableOrViewName = CONCAT('ordersheld t1 INNER JOIN estore_basket t2 ON t1.held_order = t2.shopper_id INNER JOIN contactinfo t3 ON t1.shopper_id = t3.shopper_id');
+
+IF (DataType = 'AGENT') THEN
+
+    SET ColumnNames = 't1.shopper_id, t1.held_order, t2.order_id, t2.modified,  CONCAT(t3.ship_to_fname, " ", t3.ship_to_lname) AS ship_to_name, t3.ship_to_company, (SELECT username FROM adminusers ad INNER JOIN contactinfo ct ON ad.agent_id=ct.agent_id where ct.shopper_id = t1.shopper_id) as userheld';
+
+    SET WhereClause = 't2.userhold IS NOT NULL AND t2.userHold != ''''';
+
+END IF;
+
+IF (DataType = 'CUSTOMER') THEN
+
+    SET ColumnNames = 't1.shopper_id, t1.held_order, t2.order_id, t2.modified,  CONCAT(t3.ship_to_fname, " ", t3.ship_to_lname) AS ship_to_name, t3.ship_to_company, (SELECT username FROM adminusers ad INNER JOIN contactinfo ct ON ad.agent_id=ct.agent_id where ct.shopper_id = t1.shopper_id) as userheld' ;
+
+    SET WhereClause = 't2.userHold IS NULL OR t2.userHold = ''''  ';
+
+END IF;
+
+IF (DataType = 'BYAGENT') THEN  
+
+    SET ColumnNames = 't1.shopper_id, t1.held_order, t2.order_id, t2.modified,  CONCAT(t3.ship_to_fname, " ", t3.ship_to_lname) AS ship_to_name, t3.ship_to_company, (SELECT username FROM adminusers ad INNER JOIN contactinfo ct ON ad.agent_id=ct.agent_id where ct.shopper_id = t1.shopper_id) as userheld';
+
+    SET WhereClause = CONCAT('t2.userHold =  ', @AgentID ,' ');
+
+END IF;
+
+IF (DataType = 'BYCUSTOMER') THEN
+
+    SET ColumnNames = 't1.shopper_id, t1.held_order, t2.order_id, t2.modified,  CONCAT(t3.ship_to_fname, " ", t3.ship_to_lname) AS ship_to_name, t3.ship_to_company, (SELECT username FROM adminusers ad INNER JOIN contactinfo ct ON ad.agent_id=ct.agent_id where ct.shopper_id = t1.shopper_id) as userheld' ;
+
+    SET WhereClause = CONCAT('(t1.shopper_id IN (SELECT shopper_id FROM contactinfo WHERE agent_id = ', @AgentID ,' ) AND (t2.userHold IS NULL OR t2.userHold= ''''))');
+
+END IF;
+
+
+
+SET GroupBy = ' GROUP BY t1.shopper_id, t1.held_order, t2.order_id, t2.modified, t3.ship_to_fname, t3.ship_to_lname, t3.ship_to_company, t3.ship_to_fullName, t2.userHold ';
+
+SET SortColumn = '(SELECT username FROM adminusers ad INNER JOIN contactinfo ct ON ad.agent_id=ct.agent_id where ct.shopper_id = t1.shopper_id), t3.ship_to_fname + '''' + t3.ship_to_lname ';
+
+
+
+
+
+ 
+
+-- Find first record on selected page
+
+SET StartRecord = (SelectedPage - 1) * PageSize ;
+
+ 
+
+-- Find last record on selected page
+
+SET EndRecord = SelectedPage * PageSize;
+
+ 
+
+-- Check if there is WHERE clause
+
+IF WhereClause <>  '' then
+
+    SET WhereClause = CONCAT(' WHERE ', WhereClause);
+
+  END IF;
+
+  
+
+-- Build caculate total record
+
+SET @SQLQuery = CONCAT('SELECT COUNT(order_id) FROM (SELECT t2.order_id FROM ' , TableOrViewName , WhereClause ,GroupBy ,') tb1 into @i');
+
+PREPARE stmt1 FROM @SQLQuery;
+
+EXECUTE stmt1;
+
+deallocate PREPARE stmt1;
+
+
+
+SET TotalRecord = @i;
+
+
+
+
+
+-- Build SQL query to return only selected page
+
+SET @SQLQuery = CONCAT('SELECT  ', ColumnNames ,' FROM ',TableOrViewName ,WhereClause, GroupBy ,'LIMIT ', PageSize , ' OFFSET ', StartRecord);
+
+
+
+-- Return selected page
+
+PREPARE stmt3 FROM @SQLQuery;
+
+EXECUTE stmt3;
+
+deallocate PREPARE stmt3;
+
+
+
+ 
+
+END
+
+
+
+

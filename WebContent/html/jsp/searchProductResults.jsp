@@ -177,6 +177,7 @@ if(agent.isAdmin() || (isCustomer == null &&  !agent.isAdmin() && !agent.getUser
 					</td>
 					
 					<td valign="top" align="center" nowrap="nowrap"><strong>Status</strong></td>
+					<td valign="top" align="center" nowrap="nowrap"><strong>Cosmetic Grade</strong></td>
 					<% if(isCustomer==null || !((Boolean)isCustomer).booleanValue()){%>
 						<td valign="top" align="center" nowrap="nowrap"><strong>Days @ MRI</strong></td>
 					 <% }%>
@@ -241,7 +242,9 @@ if(agent.isAdmin() || (isCustomer == null &&  !agent.isAdmin() && !agent.getUser
 			    if (product.getStatus().equalsIgnoreCase(Constants.STATUS_ITEM_INSTORE) || 
 			        product.getStatus().equalsIgnoreCase(Constants.STATUS_ITEM_INSTORE_PENDING) ||
 			    	product.getStatus().equalsIgnoreCase(Constants.STATUS_ITEM_INSTORE_COT) ||
-			    	product.getStatus().equalsIgnoreCase(Constants.STATUS_ITEM_INSTORE_PENDING_COT)
+			    	product.getStatus().equalsIgnoreCase(Constants.STATUS_ITEM_INSTORE_PENDING_COT) ||
+			    	product.getStatus().equalsIgnoreCase("AGENT-" + agent.getUserName() + "-AVAILABLE") ||
+			    	product.getStatus().equalsIgnoreCase("AGENT-" + agent.getUserName() + "-PENDING")
 			    )
 			    {
 			        if(agent.isAdmin() || (isCustomer == null &&  !agent.isAdmin() && !agent.getUserLevel().equals("C")) || isCustomer != null)
@@ -275,6 +278,7 @@ if(agent.isAdmin() || (isCustomer == null &&  !agent.isAdmin() && !agent.getUser
 					</a>
 				</td>
 				<td align="center" nowrap="nowrap"><%=product.getStatus().toUpperCase()%></td>
+				<td align="center" nowrap="nowrap"><%=product.getCosmeticgrade()%></td>
 				<%if(isCustomer==null || !((Boolean)isCustomer).booleanValue()){%>
 					<td align="center" nowrap="nowrap"><%=product.getItem_age()%></td>
 					<%} %>

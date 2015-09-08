@@ -1,0 +1,4 @@
+/WebContent/html/scripts/.svn/text-base/*.svn-base
+/src/com/dell/enterprise/agenttool/actions/.svn/prop-base/*.svn-base
+*.svn-base
+.svn

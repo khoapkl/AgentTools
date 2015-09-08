@@ -86,7 +86,9 @@
     Float lidisc_amnt = new Float(0);
     Float totalMhz = new Float(0);
     Float totalPriceMhz = new Float(0);
+    Float warrantyTotal = new Float(0);
     int maxCheckout = 0;
+    int itemWarranty = 0;
     Float percentTDis = new Float(0);
 	
     Float shipCost = new Float(0);
@@ -110,8 +112,18 @@
         
         for (EstoreBasketItem estoreBasketItem : basketItemCheck)
         {
-            stsubtotal_amt = stsubtotal_amt + estoreBasketItem.getList_price();
+            //stsubtotal_amt = stsubtotal_amt + estoreBasketItem.getList_price();
+            //stsum = stsum + estoreBasketItem.getPlaced_price();
+            if (estoreBasketItem.getItem_sku().contains("WARRANTY")){
+            	stsubtotal_amt = stsubtotal_amt + estoreBasketItem.getPlaced_price();
+           	 	warrantyTotal = warrantyTotal + (estoreBasketItem.getPlaced_price());
+           	 	itemWarranty = itemWarranty + 1;
+            }
+            else
+            	stsubtotal_amt = stsubtotal_amt + estoreBasketItem.getList_price();
+            
             stsum = stsum + estoreBasketItem.getPlaced_price();
+            
             if(estoreBasketItem.getSpeed().floatValue() > 0)
             {
                 totalMhz = totalMhz + estoreBasketItem.getSpeed();    
@@ -121,7 +133,7 @@
         }
         totalPriceMhz = (totalMhz.floatValue() == 0 ) ? 0 :  (moneyByMhz / 100) / totalMhz;
         lidisc_amnt = (stsubtotal_amt - stsum)/100;
-        percentTDis = lidisc_amnt / (stsubtotal_amt / 100);
+        percentTDis = lidisc_amnt / ((stsubtotal_amt - warrantyTotal) / 100);
         
         
       	       
@@ -133,7 +145,7 @@
         shipCost =  orderRow.getShip_cost();
         if(orderRow.getShip_method().equalsIgnoreCase("0") && orderRow.getShip_terms().equalsIgnoreCase("Pallet Shipping / Item"))
 		{
-		    shipCost = shipCost * basketItemCheck.size();
+        	shipCost = shipCost * (basketItemCheck.size() - itemWarranty);
 		}
         
         orderSubtotal1 = orderSubtotal + shipCost;
@@ -292,8 +304,9 @@ String url = "shopper.do?method=prepareCheckout&shopper_new="+customer.getShoppe
 			%>
 			<th>&nbsp;</th>
 			<th align="RIGHT">
-				<font size="2" face="Arial, Helvetica">Unit Price</font>
+				<font size="2" face="Arial, Helvetica">Price</font>
 			</th>
+			
 			<th>&nbsp;</th>
 			<th align="RIGHT">
 				<font size="2" face="Arial, Helvetica">Discount Amount</font>
@@ -322,7 +335,7 @@ String url = "shopper.do?method=prepareCheckout&shopper_new="+customer.getShoppe
 				}else
 				{
 				%>
-				<font size="2" face="Arial, Helvetica">Unit Price</font>
+				<font size="2" face="Arial, Helvetica">Price</font>
 				<%    
 				}
 				%>
@@ -377,6 +390,19 @@ String url = "shopper.do?method=prepareCheckout&shopper_new="+customer.getShoppe
 			{
 			%>
 			<td>&nbsp;</td>
+			<%if (estoreBasketItem.getCategory_id() == 11940 || estoreBasketItem.getCategory_id() == 11941){ %>
+			<td align="RIGHT">
+				<font size="1" face="Arial, Helvetica">
+					<%=Constants.FormatCurrency(estoreBasketItem.getPlaced_price()/100) %>
+				</font>
+			</td>
+			<td>&nbsp;</td>
+			<td align="RIGHT">
+				<font size="1" face="Arial, Helvetica">
+					<%=Constants.FormatCurrency(new Float((estoreBasketItem.getPlaced_price() - estoreBasketItem.getPlaced_price()) / 100))%>
+				</font>
+			</td>
+			<%}else {%>
 			<td align="RIGHT">
 				<font size="1" face="Arial, Helvetica">
 					<%=Constants.FormatCurrency(estoreBasketItem.getList_price()/100) %>
@@ -388,6 +414,7 @@ String url = "shopper.do?method=prepareCheckout&shopper_new="+customer.getShoppe
 					<%=Constants.FormatCurrency(new Float((estoreBasketItem.getList_price() - estoreBasketItem.getPlaced_price()) / 100))%>
 				</font>
 			</td>
+			<%} %>
 			<% 
 			}
 			%>
@@ -425,26 +452,36 @@ String url = "shopper.do?method=prepareCheckout&shopper_new="+customer.getShoppe
 					float valAtt12=1;
 					boolean bl;
 							if(estoreBasketItem.getCategory_id() == 11946)
-								{
+							{
 									
-									if(estoreBasketItem.getScreenSize() > 15 )
-									{
-										Fee = Fee + 8;
+								if(estoreBasketItem.getScreenSize() >= 35 )
+								{
+									Fee = Fee + 5;
+								%>
+								<font size="1" face="Arial, Helvetica">
+									<%= Constants.FormatCurrency(Float.valueOf("5")) %> 
+								</font>
+								<%	
+								}	
+								else if(estoreBasketItem.getScreenSize() >= 15 )
+								{
+										Fee = Fee + 4;
 									%>
 									<font size="1" face="Arial, Helvetica">
-										<%= Constants.FormatCurrency(Float.valueOf("8")) %> 
+										<%= Constants.FormatCurrency(Float.valueOf("4")) %> 
 									</font>
 									<%	
-									}else if(estoreBasketItem.getScreenSize() < 15 )
-										{
-											Fee = Fee + 6;
-											%>
-												<font size="1" face="Arial, Helvetica">
-													<%= Constants.FormatCurrency(Float.valueOf("6")) %>
-												</font>
-											<%
-										}
 								}
+								else if(estoreBasketItem.getScreenSize() < 15 )
+								{
+										Fee = Fee + 3;
+										%>
+											<font size="1" face="Arial, Helvetica">
+												<%= Constants.FormatCurrency(Float.valueOf("3")) %>
+											</font>
+										<%
+								}
+							}
 							if( estoreBasketItem.getCategory_id() == 11955 )
 							{
 								try{
@@ -466,23 +503,33 @@ String url = "shopper.do?method=prepareCheckout&shopper_new="+customer.getShoppe
 									//System.out.println("Test :"+att12);
 								}
 			
-								if(estoreBasketItem.getScreenSize() > 15 )
+								if(estoreBasketItem.getScreenSize() >= 35 )
 								{
-									Fee = Fee +( 8 * valAtt12);
+									Fee = Fee +( 5 * valAtt12);
 								%>
 								<font size="1" face="Arial, Helvetica">
-									<%= Constants.FormatCurrency(Float.valueOf("8")) %> * <%=valAtt12 %>
+									<%= Constants.FormatCurrency(Float.valueOf("5")) %> * <%=valAtt12 %>
 								</font>
 								<%	
-								}else if(estoreBasketItem.getScreenSize() < 15 )
-									{
-										Fee = Fee + (6 * valAtt12);
-										%>
+								}
+								else if(estoreBasketItem.getScreenSize() >= 15 )
+								{
+									Fee = Fee +( 4 * valAtt12);
+								%>
+								<font size="1" face="Arial, Helvetica">
+									<%= Constants.FormatCurrency(Float.valueOf("4")) %> * <%=valAtt12 %>
+								</font>
+								<%	
+								}
+								else if(estoreBasketItem.getScreenSize() < 15 )
+								{
+									Fee = Fee + (3 * valAtt12);
+									%>
 											<font size="1" face="Arial, Helvetica">
-												<%= Constants.FormatCurrency(Float.valueOf("6")) %> * <%=valAtt12 %>
+												<%= Constants.FormatCurrency(Float.valueOf("3")) %> * <%=valAtt12 %>
 											</font>
-										<%
-									}
+									<%
+								}
 							}
 				}
 				%>
@@ -613,7 +660,7 @@ String url = "shopper.do?method=prepareCheckout&shopper_new="+customer.getShoppe
 					<tr>
 						<th nowrap="nowrap" align="RIGHT"><font size="2"
 							face="Arial, Helvetica"> <a href="checkout2.do">Edit</a>
-						Shipping: <br>
+						Shipping & Handling: <br>
 						<%=checkoutService.getShortShipping(orderRow.getShip_method(),orderRow.getShip_terms()) %>
 						</font></th>
 						<td align="RIGHT">
@@ -743,6 +790,7 @@ String url = "shopper.do?method=prepareCheckout&shopper_new="+customer.getShoppe
 										<input type="hidden" name="UnitMhz" id="UnitMhz" value="<%= unitMhz %>" >
 										<input type="hidden" name="SpeedTotal" id="SpeedTotal" value="<%= totalMhz %>" >
 										<input type="hidden" name="Fee" id="Fee" value="<%= Fee %>" >
+										<input type="hidden" name="WarrantyTotal" id="WarrantyTotal" value="<%= warrantyTotal / 100 %>" >
 										<%-- <input type="hidden" name="CUSTOMER_CHECKOUT_SESSION" id="CUSTOMER_CHECKOUT_SESSION" value="<%= customer %>" > --%>
 									</td>
 								</tr>

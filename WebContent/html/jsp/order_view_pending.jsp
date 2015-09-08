@@ -316,9 +316,10 @@ String userLevel =(String)session.getAttribute(Constants.USER_LEVEL);
         	<TD VALIGN=BOTTOM ALIGN=LEFT></TD>
         <%}%>
         <TD VALIGN=BOTTOM ALIGN=LEFT><b>Product Name</b></TD>
-        <TD VALIGN=BOTTOM ALIGN=RIGHT><b>Unit Price</b></TD>
+        <TD VALIGN=BOTTOM ALIGN=LEFT><b>Qty</b></TD>
+        <TD VALIGN=BOTTOM ALIGN=RIGHT><b>Price</b></TD>
     </TR>
-    <tr><TD BGCOLOR=black colspan=4 HEIGHT="2"><IMG SRC="manager/MSCS_Images/extras/dot_clear.gif" WIDTH=1 HEIGHT=1></TD></tr>   
+    <tr><TD BGCOLOR=black colspan=5 HEIGHT="2"><IMG SRC="manager/MSCS_Images/extras/dot_clear.gif" WIDTH=1 HEIGHT=1></TD></tr>   
 	           <%	
 float Subtotal =0;
 if(listFollowNumber != null && !listFollowNumber.isEmpty()){  
@@ -338,7 +339,8 @@ if(listFollowNumber != null && !listFollowNumber.isEmpty()){
         	<%}else{%>
         		<TD VALIGN=BOTTOM ALIGN=LEFT></TD>
         	<%}%>
-             <TD VALIGN=TOP ALIGN=LEFT><%=order.getDescription() %></td>      
+             <TD VALIGN=TOP ALIGN=LEFT><%=order.getDescription() %></td>
+             <TD VALIGN=TOP ALIGN=LEFT><%=order.getOrderedQty() %></td>      
             <TD VALIGN=TOP ALIGN=RIGHT>           
        
       <%      
@@ -361,7 +363,7 @@ else{
      
  }}
 %>
-<tr><TD BGCOLOR=black colspan=4 HEIGHT="2"><IMG SRC="manager/MSCS_Images/extras/dot_clear.gif" WIDTH=1 HEIGHT=1></TD></tr>
+<tr><TD BGCOLOR=black colspan=5 HEIGHT="2"><IMG SRC="manager/MSCS_Images/extras/dot_clear.gif" WIDTH=1 HEIGHT=1></TD></tr>
 <TR>
         <TD COLSPAN=3 VALIGN=TOP ALIGN=RIGHT>
             Subtotal:

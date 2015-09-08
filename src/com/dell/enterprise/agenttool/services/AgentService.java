@@ -23,11 +23,11 @@ public class AgentService {
 	}
 	
 	public boolean updateAgent(int agentId, String mngUsername,String mngPassword,String mngEmail,String mngFullname, 
-			String mngUserLevel,int isReport,int isAdmin,int isActive,int userType)
+			String mngUserLevel,int isReport,int isAdmin,int isActive,int userType, int loginCount)
 	{
 		 AgentDAO dao = new AgentDAO();
 		 return dao.updateAgent(agentId, mngUsername, mngPassword, mngEmail, mngFullname, 
-         		mngUserLevel, isReport, isAdmin, isActive, userType);
+         		mngUserLevel, isReport, isAdmin, isActive, userType, loginCount);
 	}
 	
 	public boolean deleteAgent(int agentId)
@@ -52,5 +52,8 @@ public class AgentService {
 	{
 		 AgentDAO dao = new AgentDAO();
 		 return dao.getAgent(agentId);
-	}	
+	}
+	
+	
+	
 }

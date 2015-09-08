@@ -3,10 +3,16 @@
 <%@page import="com.dell.enterprise.agenttool.model.ShopperAs"%>
 <%@page import="com.dell.enterprise.agenttool.model.Customer"%>
 
+
 <%
 Agent agent =(Agent)session.getAttribute(Constants.AGENT_INFO);
 Object isCustomer = session.getAttribute(Constants.IS_CUSTOMER);
 Boolean idShopper = (Boolean)session.getAttribute(Constants.IS_SHOPPER);
+long expiryDays = 0;
+if(session.getAttribute("expiryDays") !=null)
+	{ 
+		expiryDays = (Long)session.getAttribute("expiryDays");
+	}
 
 Object isAdmin = request.getAttribute(Constants.IS_ADMIN);
 %>
@@ -78,15 +84,29 @@ Object isAdmin = request.getAttribute(Constants.IS_ADMIN);
 			<a class="nounderline"
 							href="cust_lookup.do?manage=true" 
 							target="_parent" name="Toolbar"><b><span
-							id="Toolbar3exit.asp">Customer Setup</span></b></a>&nbsp;
+							id="Toolbar3exit.asp">Customer Setup</span></b></a>
 							
 			<% }%>
-			<a id="LastLink" class="nounderline"
-							href="authenticate.do?method=logout" 
+			<ul id="menu">
+			 	 <li><a id="LastLink" class="nounderline"
+							href="#" 
 							target="_parent" name="Toolbar"><b><span
-							id="Toolbar3exit.asp">Exit (<%=agent.getUserName() %>)</span></b></a>&nbsp;
-							
-				
+							id="Toolbar3exit.asp">Logged in as: <%=agent.getUserName()%></span></b></a>
+			         <ul class="sub-menu">
+			            <li>
+							<a class="tooltip-change" href="change_password.do?method=editPassword&expire=0">Change Password
+							</a>	
+							<span id="tooltip-changepwd">
+    							Your password will expire in <%=expiryDays %> days
+							</span>		                
+			            </li>
+			            <li>
+			                <a href="authenticate.do?method=logout">Log Out</a>
+			            </li>
+			        </ul>
+			    </li>
+			</ul>
+
 			<%
 			}else{
 			%>
@@ -96,10 +116,14 @@ Object isAdmin = request.getAttribute(Constants.IS_ADMIN);
 							href="shopper.do?method=prepareCheckout&shopper_new=<%=session.getAttribute(Constants.SHOPPER_ID) %>&section=checkout"
 							target="_parent" name="Toolbar"><b><span
 							id="Toolbar1cust_lookup.asp">Checkout</span></b></a>
-			<a id="LastLink" class="nounderline"
+							
+			<!--<a id="LastLink" class="nounderline"
 							href="login.do?method=logout" 
 							target="_parent" name="Toolbar"><b><span
 							id="Toolbar3exit.asp">Exit (<%=agent.getUserName() %>)</span></b></a>&nbsp;
+			-->
+			<a id="ExitLink" class="nounderline" href="login.do?method=logout"
+				target="_parent" name="Toolbar"><b><span id="Toolbar3exit.asp">Exit (<%=agent.getUserName() %>)</span></b></a>&nbsp;	
 			<%
 			}
 			%>
@@ -110,3 +134,4 @@ Object isAdmin = request.getAttribute(Constants.IS_ADMIN);
 		</tr>
 	</tbody>
 </table>
+ <%@include file="/html/scripts/default_menu_script.jsp"%>

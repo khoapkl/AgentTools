@@ -35,7 +35,7 @@
 				"^"
 						+ ((bSigned) ? sSigned : "\\$?")
 						+ "((\\d{1,3})*(,?\\d{3})*\\.?\\d{1,100}|\\d{1,3}(,?\\d{3})*\\.?(\\d{1,100})?)$");
-
+	
 		if (re.test(adjPrice)) {
 			input_object.value = formatCurrency(adjPrice);
 			return true;
@@ -185,8 +185,464 @@
 			form_object.Est_SubTot.value = formatCurrency(adjSum);
 		}
 	}
+	
+	function mass_cal_discount_option(form_object, cal_value) 
+	{
+		var i, startIndex_OP, startIndex_DP, startIndex_MP, startIndex_Mhz ;
+		var endIndex_OP, endIndex_DP, endIndex_MP, endIndex_Mhz;
+		var cnt, price_len, letter;
+		var arrOPrices, arrMPrices;
+		var modified_price, discount_price;
+		var pass;
+
+		prices_original = new String(form_object.price_list.value);
+		sku_list = new String(form_object.sku_list.value);
+		sku_disc_list = new String(form_object.sku_disc_list.value);
+		sku_mhz_list = new String(form_object.sku_mhz_list.value);
+
+		cnt = parseInt(eval(form_object.row.value));
+		arrOPrices = new Array(cnt);
+		arrMPrices = new Array(cnt, 2);
+
+		startIndex_OP = 0;
+		startIndex_MP = 0;
+		startIndex_DP = 0;
+		startIndex_Mhz = 0;
+		modified_price = 0;
+		discount_price = 0;
+		total_discount = 0;
+		total_ext_price = 0;
+		total_total = 0;
+		total_mhz = 0;
+		total_mhz_price = 0;
+		
+		if (form_object.massdiscount.value == 1)
+		{
+			if (form_object.adj_discount.value == 0)
+			{	
+				mass_cal_discount_clear(form_object, cal_value);
+			}
+			else
+				alert("Please input the value of 0 (zero) to clear the discount.");
+		}
+		else if (form_object.massdiscount.value == 2)
+			if (cal_value > 80)
+				alert("The discount percentage can't be more than 80%");
+			else
+				mass_cal_discount(form_object, cal_value);
+		else if (form_object.massdiscount.value == 3)
+		{
+			/**
+			pass = 1;
+			for (i = 0; i < cnt; i++) 
+			{
+				endIndex_OP = prices_original.indexOf(",", startIndex_OP);
+				endIndex_MP = sku_list.indexOf(",", startIndex_MP);
+				endIndex_DP = sku_disc_list.indexOf(",", startIndex_DP);
+				endIndex_Mhz = sku_mhz_list.indexOf(",", startIndex_Mhz);
+				
+				thisVal_MP = eval("form_object." + sku_list.substring(startIndex_MP, endIndex_MP));
+				thisVal_OP = parseFloat(eval(prices_original.substring(startIndex_OP, endIndex_OP)));
+				thisVal_DP = eval("form_object." + sku_disc_list.substring(startIndex_DP, endIndex_DP));
+				thisMhz = parseFloat(eval("form_object." + sku_mhz_list.substring(startIndex_Mhz, endIndex_Mhz) + "hid.value"));
+				
+				if (sku_list.substring(startIndex_MP, endIndex_MP).substring(10, 18) != "WARRANTY")
+				{
+					if ((cal_value > thisVal_OP) || (cal_value < 1))
+					{
+						alert("One or more item(s) have a discount of more than the orignal price OR the unit price is $0 (zero). see Tag #" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ". Please review the discount value. DISCOUNT IS ABORTED!");
+						i = cnt;
+						pass = 0;
+					}
+				}
+				
+				startIndex_OP = endIndex_OP + 1;
+				startIndex_MP = endIndex_MP + 1;
+				startIndex_DP = endIndex_DP + 1;
+				startIndex_Mhz = endIndex_Mhz + 1;
+			}
+			if (pass == 1) mass_cal_discount_amt(form_object, cal_value); **/
+			mass_cal_discount_amt(form_object, cal_value);
+		}
+		else if (form_object.massdiscount.value == 4)
+		{
+			/**
+			pass = 1;
+			for (i = 0; i < cnt; i++) 
+			{
+				endIndex_OP = prices_original.indexOf(",", startIndex_OP);
+				endIndex_MP = sku_list.indexOf(",", startIndex_MP);
+				endIndex_DP = sku_disc_list.indexOf(",", startIndex_DP);
+				endIndex_Mhz = sku_mhz_list.indexOf(",", startIndex_Mhz);
+				
+				thisVal_MP = eval("form_object." + sku_list.substring(startIndex_MP, endIndex_MP));
+				thisVal_OP = parseFloat(eval(prices_original.substring(startIndex_OP, endIndex_OP)));
+				thisVal_DP = eval("form_object." + sku_disc_list.substring(startIndex_DP, endIndex_DP));
+				thisMhz = parseFloat(eval("form_object." + sku_mhz_list.substring(startIndex_Mhz, endIndex_Mhz) + "hid.value"));
+				
+				if (sku_list.substring(startIndex_MP, endIndex_MP).substring(10, 18) != "WARRANTY") 
+				{
+					if (thisMhz > 0)
+					{
+						if (thisVal_OP < (cal_value / 100 * thisMhz))
+						{
+							alert("One ore more item(s) have discount more than the orignal price. see Tag #" + sku_list.substring(startIndex_MP, endIndex_MP).substring(10, 18) + ". Please review the discount value. DISCOUNT IS ABORTED!");
+							i = cnt;
+							pass = 0;
+						}
+					}
+				}
+				
+				startIndex_OP = endIndex_OP + 1;
+				startIndex_MP = endIndex_MP + 1;
+				startIndex_DP = endIndex_DP + 1;
+				startIndex_Mhz = endIndex_Mhz + 1;
+			}
+			if (pass == 1) mass_cal_discount_mhz(form_object, cal_value); **/
+			mass_cal_discount_mhz(form_object, cal_value);
+		}
+		else
+			alert("Please select a discount type.");
+	}
 
 	function mass_cal_discount(form_object, cal_value) 
+	{
+		//if(isNaN(cal_value) || (cal_value < 0) || (cal_value > 100))
+		//Allows discount negative; Do add this line 30/May
+		if(isNaN(cal_value))
+		{
+			alert("Discount Percent is invalid.");
+			form_object.adj_discount.value = form_object.ttldiscp.value.replace(/\%|\,/g, '') ;
+			form_object.adj_discount.focus();
+			return false ;
+		}
+		
+		var i, startIndex_OP, startIndex_DP, startIndex_MP, startIndex_Mhz ;
+		var endIndex_OP, endIndex_DP, endIndex_MP, endIndex_Mhz;
+		var cnt, price_len, letter;
+		var arrOPrices, arrMPrices;
+		var modified_price, discount_price;
+		var warranty_price;
+
+		prices_original = new String(form_object.price_list.value);
+		sku_list = new String(form_object.sku_list.value);
+		sku_disc_list = new String(form_object.sku_disc_list.value);
+		sku_mhz_list = new String(form_object.sku_mhz_list.value);
+
+		cnt = parseInt(eval(form_object.row.value));
+		arrOPrices = new Array(cnt);
+		arrMPrices = new Array(cnt, 2);
+
+		startIndex_OP = 0;
+		startIndex_MP = 0;
+		startIndex_DP = 0;
+		startIndex_Mhz = 0;
+		modified_price = 0;
+		discount_price = 0;
+		total_discount = 0;
+		total_ext_price = 0;
+		total_total = 0;
+		total_mhz = 0;
+		total_mhz_price = 0;
+		warranty_price = 0;
+		for (i = 0; i < cnt; i++) 
+		{
+			endIndex_OP = prices_original.indexOf(",", startIndex_OP);
+			endIndex_MP = sku_list.indexOf(",", startIndex_MP);
+			endIndex_DP = sku_disc_list.indexOf(",", startIndex_DP);
+			endIndex_Mhz = sku_mhz_list.indexOf(",", startIndex_Mhz);
+			
+			thisVal_MP = eval("form_object." + sku_list.substring(startIndex_MP, endIndex_MP));
+			thisVal_OP = parseFloat(eval(prices_original.substring(startIndex_OP, endIndex_OP)));
+			thisVal_DP = eval("form_object." + sku_disc_list.substring(startIndex_DP, endIndex_DP));
+			thisMhz = parseFloat(eval("form_object." + sku_mhz_list.substring(startIndex_Mhz, endIndex_Mhz) + "hid.value"));
+
+			if (sku_list.substring(startIndex_MP, endIndex_MP).substring(10, 18) == "WARRANTY") {
+				//alert("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount",""));
+				//alert(eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value"));
+				modified_price = thisVal_OP * eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value");
+				warranty_price = warranty_price + modified_price;
+				discount_price = 0;
+			}
+			else 
+			{
+				modified_price = thisVal_OP - (thisVal_OP * cal_value / 100);
+				discount_price = thisVal_OP * cal_value / 100;
+			}
+			total_discount = total_discount + discount_price;
+			total_ext_price = total_ext_price + modified_price;
+			total_total = total_total + (thisVal_OP * eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value"));
+			eval("form_object." + sku_list.substring(startIndex_MP, endIndex_MP) + ".value =" + modified_price);
+			eval("form_object." + sku_disc_list.substring(startIndex_DP, endIndex_DP) + ".value =" + discount_price);
+
+			
+			
+			if (thisMhz > 0) {
+				total_mhz = total_mhz + thisMhz;
+				total_mhz_price = total_mhz_price + modified_price;
+				eval("form_object." + sku_mhz_list.substring(startIndex_Mhz, endIndex_Mhz) + ".value ="
+							+ Math.round(modified_price / thisMhz * 1000) / 1000);
+			}
+			
+			if (!price_check(thisVal_MP.value, "Line Item", thisVal_MP)) {
+				return false;
+			}
+
+			if (!price_check(thisVal_DP.value, "Line Item", thisVal_DP)) {
+				return false;
+			}
+
+			startIndex_OP = endIndex_OP + 1;
+			startIndex_MP = endIndex_MP + 1;
+			startIndex_DP = endIndex_DP + 1;
+			startIndex_Mhz = endIndex_Mhz + 1;
+		}
+		form_object.Disc_TotCol.value = formatCurrency(total_discount);
+		form_object.Ext_TotCol.value = formatCurrency(total_ext_price);
+		form_object.ttldisc.value = formatCurrency(total_discount);
+		form_object.ttldiscp.value = Math.round(cal_value * 100) / 100 + "%";
+		form_object.ETOTAL.value = formatCurrency(total_total - total_discount);
+		form_object.Est_SubTot.value = formatCurrency(total_ext_price);
+		if (total_mhz > 0) {
+			form_object.AvgMhz.value = Math.round(total_mhz_price / total_mhz
+					* 1000) / 1000;
+			form_object.avg_price_mhz.value = Math.round(total_mhz_price
+					/ total_mhz * 1000) / 1000;
+		} else {
+			form_object.AvgMhz.value = 0;
+			form_object.avg_price_mhz.value = 0;
+		}
+		return true;
+	}
+	
+	function mass_cal_discount_amt(form_object, cal_value) 
+	{
+		//if(isNaN(cal_value) || (cal_value < 0) || (cal_value > 100))
+		//Allows discount negative; Do add this line 30/May
+		
+		
+		if(isNaN(cal_value))
+		{
+			alert("Discount Percent is invalid.");
+			form_object.adj_discount.value = form_object.ttldiscp.value.replace(/\%|\,/g, '') ;
+			form_object.adj_discount.focus();
+			return false ;
+		}
+		
+		var i, startIndex_OP, startIndex_DP, startIndex_MP, startIndex_Mhz ;
+		var endIndex_OP, endIndex_DP, endIndex_MP, endIndex_Mhz;
+		var cnt, price_len, letter;
+		var arrOPrices, arrMPrices;
+		var modified_price, discount_price;
+		var warranty_price;
+
+		prices_original = new String(form_object.price_list.value);
+		sku_list = new String(form_object.sku_list.value);
+		sku_disc_list = new String(form_object.sku_disc_list.value);
+		sku_mhz_list = new String(form_object.sku_mhz_list.value);
+
+		cnt = parseInt(eval(form_object.row.value));
+		arrOPrices = new Array(cnt);
+		arrMPrices = new Array(cnt, 2);
+		
+		startIndex_OP = 0;
+		startIndex_MP = 0;
+		startIndex_DP = 0;
+		startIndex_Mhz = 0;
+		modified_price = 0;
+		discount_price = 0;
+		total_discount = 0;
+		total_ext_price = 0;
+		total_total = 0;
+		total_mhz = 0;
+		total_mhz_price = 0;
+		warranty_price = 0;
+		
+		for (i = 0; i < cnt; i++) 
+		{
+			endIndex_OP = prices_original.indexOf(",", startIndex_OP);
+			endIndex_MP = sku_list.indexOf(",", startIndex_MP);
+			endIndex_DP = sku_disc_list.indexOf(",", startIndex_DP);
+			endIndex_Mhz = sku_mhz_list.indexOf(",", startIndex_Mhz);
+			thisVal_MP = eval("form_object." + sku_list.substring(startIndex_MP, endIndex_MP));
+			
+			thisVal_OP = parseFloat(eval(prices_original.substring(startIndex_OP, endIndex_OP)));
+			thisVal_DP = eval("form_object." + sku_disc_list.substring(startIndex_DP, endIndex_DP));
+			thisMhz = parseFloat(eval("form_object." + sku_mhz_list.substring(startIndex_Mhz, endIndex_Mhz) + "hid.value"));
+			
+		
+			if (sku_list.substring(startIndex_MP, endIndex_MP).substring(10, 18) == "WARRANTY") {
+				//alert("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount",""));
+				//alert(eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value"));
+				modified_price = thisVal_OP * eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value");
+				discount_price = 0;
+				warranty_price = (warranty_price + modified_price) * 1;
+			}
+			else 
+			{
+				modified_price = cal_value * 1; //thisVal_OP - (thisVal_OP * cal_value / 100);
+				discount_price = thisVal_OP - cal_value; //thisVal_OP * cal_value / 100;
+			}
+			total_discount = total_discount + discount_price;
+			total_ext_price = total_ext_price + modified_price;
+			total_total = total_total + (thisVal_OP * eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value"));
+			eval("form_object." + sku_list.substring(startIndex_MP, endIndex_MP) + ".value =" + modified_price);
+			eval("form_object." + sku_disc_list.substring(startIndex_DP, endIndex_DP) + ".value =" + discount_price);
+			if (thisMhz > 0) {
+				total_mhz = total_mhz + thisMhz;
+				total_mhz_price = total_mhz_price + modified_price;
+				eval("form_object." + sku_mhz_list.substring(startIndex_Mhz, endIndex_Mhz) + ".value ="
+							+ Math.round(modified_price / thisMhz * 1000) / 1000);
+			}
+			
+			if (!price_check(thisVal_MP.value, "Line Item", thisVal_MP)) {
+				return false;
+			}
+
+			if (!price_check(thisVal_DP.value, "Line Item", thisVal_DP)) {
+				return false;
+			}
+
+			startIndex_OP = endIndex_OP + 1;
+			startIndex_MP = endIndex_MP + 1;
+			startIndex_DP = endIndex_DP + 1;
+			startIndex_Mhz = endIndex_Mhz + 1;
+		}
+		form_object.Disc_TotCol.value = formatCurrency(total_discount);
+		form_object.Ext_TotCol.value = formatCurrency(total_ext_price);
+		form_object.ttldisc.value = formatCurrency(total_discount);
+		form_object.ttldiscp.value = Math.round((total_discount / (total_total - warranty_price) * 100) * 100)/100 + "%";
+		form_object.ETOTAL.value = formatCurrency(total_total - total_discount);
+		form_object.Est_SubTot.value = formatCurrency(total_ext_price);
+		if (total_mhz > 0) {
+			form_object.AvgMhz.value = Math.round(total_mhz_price / total_mhz
+					* 1000) / 1000;
+			form_object.avg_price_mhz.value = Math.round(total_mhz_price
+					/ total_mhz * 1000) / 1000;
+		} else {
+			form_object.AvgMhz.value = 0;
+			form_object.avg_price_mhz.value = 0;
+		}
+		return true;
+	}
+	
+	function mass_cal_discount_mhz(form_object, cal_value) 
+	{
+		//if(isNaN(cal_value) || (cal_value < 0) || (cal_value > 100))
+		//Allows discount negative; Do add this line 30/May
+		if(isNaN(cal_value))
+		{
+			alert("Discount is invalid.");
+			form_object.adj_discount.value = form_object.ttldiscp.value.replace(/\%|\,/g, '') ;
+			form_object.adj_discount.focus();
+			return false ;
+		}
+		
+		var i, startIndex_OP, startIndex_DP, startIndex_MP, startIndex_Mhz ;
+		var endIndex_OP, endIndex_DP, endIndex_MP, endIndex_Mhz;
+		var cnt, price_len, letter;
+		var arrOPrices, arrMPrices;
+		var modified_price, discount_price;
+		var warranty_price;
+
+		prices_original = new String(form_object.price_list.value);
+		sku_list = new String(form_object.sku_list.value);
+		sku_disc_list = new String(form_object.sku_disc_list.value);
+		sku_mhz_list = new String(form_object.sku_mhz_list.value);
+
+		cnt = parseInt(eval(form_object.row.value));
+		arrOPrices = new Array(cnt);
+		arrMPrices = new Array(cnt, 2);
+
+		startIndex_OP = 0;
+		startIndex_MP = 0;
+		startIndex_DP = 0;
+		startIndex_Mhz = 0;
+		modified_price = 0;
+		discount_price = 0;
+		total_discount = 0;
+		total_ext_price = 0;
+		total_total = 0;
+		total_mhz = 0;
+		total_mhz_price = 0;
+		warranty_price = 0;
+		for (i = 0; i < cnt; i++) 
+		{
+			endIndex_OP = prices_original.indexOf(",", startIndex_OP);
+			endIndex_MP = sku_list.indexOf(",", startIndex_MP);
+			endIndex_DP = sku_disc_list.indexOf(",", startIndex_DP);
+			endIndex_Mhz = sku_mhz_list.indexOf(",", startIndex_Mhz);
+			
+			thisVal_MP = eval("form_object." + sku_list.substring(startIndex_MP, endIndex_MP));
+			thisVal_OP = parseFloat(eval(prices_original.substring(startIndex_OP, endIndex_OP)));
+			thisVal_DP = eval("form_object." + sku_disc_list.substring(startIndex_DP, endIndex_DP));
+			thisMhz = parseFloat(eval("form_object." + sku_mhz_list.substring(startIndex_Mhz, endIndex_Mhz) + "hid.value"));
+
+			if (thisMhz > 0) {
+				total_mhz = total_mhz + thisMhz;
+				total_mhz_price = (cal_value * thisMhz) + total_mhz_price; //total_mhz_price + modified_price;
+				//eval("form_object." + sku_mhz_list.substring(startIndex_Mhz, endIndex_Mhz) + ".value ="
+				//			+ Math.round(modified_price / thisMhz * 1000) / 1000);
+				eval("form_object." + sku_mhz_list.substring(startIndex_Mhz, endIndex_Mhz) + ".value ="
+						+ Math.round(cal_value * 1000) / 1000);
+			}
+			
+			if (sku_list.substring(startIndex_MP, endIndex_MP).substring(10, 18) == "WARRANTY") {
+				//alert("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount",""));
+				//alert(eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value"));
+				modified_price = thisVal_OP * eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value");
+				warranty_price = warranty_price + modified_price;
+				discount_price = 0;
+			}
+			else if (thisMhz > 0)
+			{
+				modified_price = cal_value * thisMhz; //thisVal_OP - (thisVal_OP * cal_value / 100);
+				discount_price = thisVal_OP - (cal_value * thisMhz); //thisVal_OP * cal_value / 100;
+			}
+			else
+			{
+				modified_price = thisVal_OP;
+				discount_price = 0;
+			}
+			total_discount = total_discount + discount_price;
+			total_ext_price = total_ext_price + modified_price;
+			total_total = total_total + (thisVal_OP * eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value"));
+			eval("form_object." + sku_list.substring(startIndex_MP, endIndex_MP) + ".value =" + modified_price);
+			eval("form_object." + sku_disc_list.substring(startIndex_DP, endIndex_DP) + ".value =" + discount_price);
+			
+			
+			if (!price_check(thisVal_MP.value, "Line Item", thisVal_MP)) {
+				return false;
+			}
+
+			if (!price_check(thisVal_DP.value, "Line Item", thisVal_DP)) {
+				return false;
+			}
+
+			startIndex_OP = endIndex_OP + 1;
+			startIndex_MP = endIndex_MP + 1;
+			startIndex_DP = endIndex_DP + 1;
+			startIndex_Mhz = endIndex_Mhz + 1;
+		}
+		form_object.Disc_TotCol.value = formatCurrency(total_discount);
+		form_object.Ext_TotCol.value = formatCurrency(total_ext_price);
+		form_object.ttldisc.value = formatCurrency(total_discount);
+		form_object.ttldiscp.value = Math.round((total_discount / (total_total - warranty_price) * 100) * 100)/100 + "%";
+		form_object.ETOTAL.value = formatCurrency(total_total - total_discount);
+		form_object.Est_SubTot.value = formatCurrency(total_ext_price);
+		if (total_mhz > 0) {
+			form_object.AvgMhz.value = Math.round(total_mhz_price / total_mhz
+					* 1000) / 1000;
+			form_object.avg_price_mhz.value = Math.round(total_mhz_price
+					/ total_mhz * 1000) / 1000;
+		} else {
+			form_object.AvgMhz.value = 0;
+			form_object.avg_price_mhz.value = 0;
+		}
+		return true;
+	}
+	
+	function mass_cal_discount_clear(form_object, cal_value) 
 	{
 		//if(isNaN(cal_value) || (cal_value < 0) || (cal_value > 100))
 		//Allows discount negative; Do add this line 30/May
@@ -230,23 +686,36 @@
 			endIndex_MP = sku_list.indexOf(",", startIndex_MP);
 			endIndex_DP = sku_disc_list.indexOf(",", startIndex_DP);
 			endIndex_Mhz = sku_mhz_list.indexOf(",", startIndex_Mhz);
-			thisVal_OP = parseFloat(eval(prices_original.substring(startIndex_OP, endIndex_OP)));
+			
 			thisVal_MP = eval("form_object." + sku_list.substring(startIndex_MP, endIndex_MP));
+			thisVal_OP = parseFloat(eval(prices_original.substring(startIndex_OP, endIndex_OP)));
 			thisVal_DP = eval("form_object." + sku_disc_list.substring(startIndex_DP, endIndex_DP));
 			thisMhz = parseFloat(eval("form_object." + sku_mhz_list.substring(startIndex_Mhz, endIndex_Mhz) + "hid.value"));
-			modified_price = thisVal_OP - (thisVal_OP * cal_value / 100);
-			discount_price = thisVal_OP * cal_value / 100;
+
+			if (sku_list.substring(startIndex_MP, endIndex_MP).substring(10, 18) == "WARRANTY") {
+				//alert("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount",""));
+				//alert(eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value"));
+				modified_price = thisVal_OP * eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value");
+				
+				discount_price = 0;
+			}
+			else 
+			{
+				modified_price = thisVal_OP;
+				discount_price = 0;
+			}
 			total_discount = total_discount + discount_price;
 			total_ext_price = total_ext_price + modified_price;
-			total_total = total_total + thisVal_OP;
+			total_total = total_total + (thisVal_OP * eval("form_object." + "qty" + sku_list.substring(startIndex_MP, endIndex_MP).replace("LIDiscount","") + ".value"));
 			eval("form_object." + sku_list.substring(startIndex_MP, endIndex_MP) + ".value =" + modified_price);
 			eval("form_object." + sku_disc_list.substring(startIndex_DP, endIndex_DP) + ".value =" + discount_price);
 			if (thisMhz > 0) {
 				total_mhz = total_mhz + thisMhz;
 				total_mhz_price = total_mhz_price + modified_price;
 				eval("form_object." + sku_mhz_list.substring(startIndex_Mhz, endIndex_Mhz) + ".value ="
-						+ Math.round(modified_price / thisMhz * 1000) / 1000);
+							+ Math.round(modified_price / thisMhz * 1000) / 1000);
 			}
+			
 			if (!price_check(thisVal_MP.value, "Line Item", thisVal_MP)) {
 				return false;
 			}

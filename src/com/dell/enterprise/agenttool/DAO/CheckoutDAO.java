@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 
 import com.dell.enterprise.agenttool.model.Avg_mhz;
 import com.dell.enterprise.agenttool.model.EstoreBasketItem;
+import com.dell.enterprise.agenttool.model.WarrantyPartList;
 import com.dell.enterprise.agenttool.model.OrderHeader;
 import com.dell.enterprise.agenttool.model.PayMethods;
 import com.dell.enterprise.agenttool.model.TaxTables;
@@ -100,6 +101,7 @@ public class CheckoutDAO
     private Connection conn;
     //private Statement stmt;
     private PreparedStatement pstmt;
+    private PreparedStatement pstmt1;
     private ResultSet rs;
 
     public List<EstoreBasketItem> getItemCheck(String shopper_id, Boolean byAgent)
@@ -115,7 +117,7 @@ public class CheckoutDAO
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, shopper_id);
             pstmt.setBoolean(2, byAgent);
-
+            LOGGER.info("@@@@ CHECKITEM "+pstmt);
             rs = pstmt.executeQuery();
             while (rs.next())
             {
@@ -207,6 +209,69 @@ public class CheckoutDAO
         return listEstoreBasketItem;
     }
 
+    
+    public List<WarrantyPartList> getWarrantyList(int warrantyCat1, int warrantyCat2)
+    {
+        List<WarrantyPartList> listWarrantyPart = new ArrayList<WarrantyPartList>();
+        try
+        {
+            LOGGER.info("Execute CheckoutDAO : function getItemCheck");
+            DAOUtils daoUtil = DAOUtils.getInstance();
+            conn = daoUtil.getConnection();
+            String sql = daoUtil.getString("checkout.get.warranty.list");
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, warrantyCat1);
+            pstmt.setInt(2, warrantyCat2);
+            
+            rs = pstmt.executeQuery();
+            while (rs.next())
+            {
+                WarrantyPartList warrantyParts = new WarrantyPartList();
+
+                warrantyParts.setItem_sku(rs.getString("partnumber"));                
+                warrantyParts.setName(rs.getString("description"));
+                warrantyParts.setMfg_sku(rs.getString("mfg_sku"));
+                warrantyParts.setList_price(rs.getFloat("price") * 100);
+                warrantyParts.setCategory_id(rs.getInt("category_id"));
+                
+                listWarrantyPart.add(warrantyParts);
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.info("Error Execute CheckoutDAO : function getItemCheck");
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (rs != null)
+                {
+                    rs.close();
+                }
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (conn != null)
+                {
+                    conn.close();
+                }
+            }
+            catch (SQLException sqlE)
+            {
+                LOGGER.info("Error Execute CheckoutDAO : function listWarranty - SQLException");
+                sqlE.printStackTrace();
+            }
+        }
+
+        return listWarrantyPart;
+    }
+
+    
+    
     public String getPromoByCat(int category_id)
     {
         String nameFamily = "";
@@ -509,6 +574,173 @@ public class CheckoutDAO
         return flag;
 
     }
+    
+    public int setOrderLineAddWarranty(Float newPrice, String shopper_id, String item_sku, int qty, int category_id, Float orignalprice, Boolean byAgent)
+    {
+        int flag = 0;
+        String partDescription = "";
+        try
+        {
+            LOGGER.info("Execute CheckoutDAO : function setOrderLineAddWarranty");
+            DAOUtils daoUtil = DAOUtils.getInstance();
+            conn = daoUtil.getConnection();
+            
+            //Get warranty info
+            String sql1 = daoUtil.getString("product.basket.warranty.query");
+            pstmt1 = conn.prepareStatement(sql1);
+            pstmt1.setString(1, item_sku);
+            rs = pstmt1.executeQuery();
+            if (rs.next())
+            {
+            	String sql = daoUtil.getString("product.basket.item.add");
+                partDescription = rs.getString("description");
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, shopper_id);
+                pstmt.setString(2, partDescription);
+                pstmt.setString(3, item_sku);
+                pstmt.setInt(4, qty);
+                pstmt.setFloat(5, orignalprice);
+                pstmt.setString(6, partDescription);
+                pstmt.setString(7, partDescription);
+                pstmt.setInt(8, 0);
+                pstmt.setBoolean(9, byAgent);
+                pstmt.setInt(10, rs.getInt("category_id"));
+
+                flag = pstmt.executeUpdate();
+            }
+            pstmt1.close();
+        }
+        catch (Exception e)
+        {
+            LOGGER.info("Error Execute CheckoutDAO : function setOrderLineAddWarranty");
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (rs != null)
+                {
+                    rs.close();
+                }
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (conn != null)
+                {
+                    conn.close();
+                }
+            }
+            catch (SQLException sqlE)
+            {
+                LOGGER.info("Error Execute CheckoutDAO : function setOrderLineAddWarranty - SQLException");
+                sqlE.printStackTrace();
+            }
+        }
+        return flag;
+
+    }
+    
+    public int setOrderLineUpdateWarranty(Float newPrice, String shopper_id, String item_sku, int qty, Boolean isAgent)
+    {
+        int flag = 0;
+        try
+        {
+            LOGGER.info("Execute CheckoutDAO : function setOrderLineUpdateWarranty");
+            DAOUtils daoUtil = DAOUtils.getInstance();
+            conn = daoUtil.getConnection();
+            String sql = daoUtil.getString("checkout.order.line.item.update.warranty");
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setFloat(1, newPrice);
+            pstmt.setInt(2, qty);
+            pstmt.setString(3, shopper_id);
+            pstmt.setString(4, item_sku);
+            pstmt.setBoolean(5, isAgent);
+            
+            flag = pstmt.executeUpdate();
+        }
+        catch (Exception e)
+        {
+            LOGGER.info("Error Execute CheckoutDAO : function setOrderLineUpdateWarranty");
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (rs != null)
+                {
+                    rs.close();
+                }
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (conn != null)
+                {
+                    conn.close();
+                }
+            }
+            catch (SQLException sqlE)
+            {
+                LOGGER.info("Error Execute CheckoutDAO : function setOrderLineAddWarranty - SQLException");
+                sqlE.printStackTrace();
+            }
+        }
+        return flag;
+
+    }
+    
+    public int deleteWarrantyItem(String shopper_id, String item_sku, Boolean isAgent)
+    {
+        int flag = 0;
+        try
+        {
+            LOGGER.info("Execute CheckoutDAO : function setOrderLineItemDiscount");
+            DAOUtils daoUtil = DAOUtils.getInstance();
+            conn = daoUtil.getConnection();
+            String sql = daoUtil.getString("checkout.order.line.item.del_warranty");
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, shopper_id);
+            pstmt.setString(2, item_sku);
+            pstmt.setBoolean(3, isAgent);
+
+            flag = pstmt.executeUpdate();
+        }
+        catch (Exception e)
+        {
+            LOGGER.info("Error Execute CheckoutDAO : function deleteWarrantyItem");
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (rs != null)
+                {
+                    rs.close();
+                }
+                if (pstmt != null)
+                {
+                    pstmt.close();
+                }
+                if (conn != null)
+                {
+                    conn.close();
+                }
+            }
+            catch (SQLException sqlE)
+            {
+                LOGGER.info("Error Execute CheckoutDAO : function deleteWarrantyItem - SQLException");
+                sqlE.printStackTrace();
+            }
+        }
+        return flag;
+
+    }
 
     public Object[][] getShippingPrice(boolean usingManager, List<EstoreBasketItem> listEstoreBasketItem, String shipPostal)
     {
@@ -548,7 +780,7 @@ public class CheckoutDAO
                     pstmt = conn.prepareStatement(sqlWeight);
                     pstmt.setString(1, shipPostal);
                     pstmt.setInt(2, estoreBasketItem.getWeight());
-
+                    
                     //	             pstmt = null;
                     rs = pstmt.executeQuery();
                     int tmp = 1;
@@ -556,7 +788,14 @@ public class CheckoutDAO
                     {
                         int shipOption = rs.getInt("shipid");
                         arrayShipping[shipOption][0] = rs.getString("carrier") + " " + rs.getString("service");
-                        arrayShipping[shipOption][1] = Double.valueOf(arrayShipping[shipOption][1].toString()) + rs.getDouble("Price");
+                        if (!usingManager)
+                        {
+                        	arrayShipping[shipOption][1] = rs.getInt("freeCtrl") * (Double.valueOf(arrayShipping[shipOption][1].toString()) + rs.getDouble("Price"));
+                        }
+                        else
+                        {
+                        	arrayShipping[shipOption][1] = Double.valueOf(arrayShipping[shipOption][1].toString()) + rs.getDouble("Price");
+                        }
                         arrayShipping[shipOption][2] = rs.getString("carrier") + " " + rs.getString("service");
                         arrayShipping[shipOption][3] = tmp;
                         tmp++;
@@ -952,7 +1191,7 @@ public class CheckoutDAO
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, zip);
             pstmt.setString(2, city);
-
+            
             rs = pstmt.executeQuery();
             taxTables = new TaxTables();
             if (rs.next())
@@ -1064,6 +1303,7 @@ public class CheckoutDAO
             pstmt.setInt(33, orderHeader.getCc_expmonth());
             pstmt.setInt(34, orderHeader.getCc_expyear());
             pstmt.setString(35, orderHeader.getPayment_terms());
+            pstmt.setString(59, orderHeader.getPayment_terms());
             pstmt.setString(36, orderHeader.getCc_type());
 
             //pstmt.setBoolean(37, orderHeader.getTaxable());
@@ -1094,6 +1334,7 @@ public class CheckoutDAO
             pstmt.setString(56, orderHeader.getVenuetype());
             pstmt.setString(57, orderHeader.getShip_terms());
             pstmt.setBoolean(58, orderHeader.getByAgent());
+            pstmt.setFloat(60, orderHeader.getWarranty_total().floatValue());
 
             int i = pstmt.executeUpdate();
             if (i > 0)
@@ -1588,7 +1829,56 @@ public class CheckoutDAO
 
         return cat;
     }
+    
+    public int getQtyCat(String shopper_id,int category_id)
+    {
+        //checkout.select.quantity.get
+        int cat = 0;
 
+        try
+        {
+            LOGGER.info("Execute ProducDAO - Function getCheckCat ");
+            DAOUtils daoUtil = DAOUtils.getInstance();
+            conn = daoUtil.getConnection();
+
+            //Add orders Held
+            String sql1 = daoUtil.getString("checkout.select.quantity.get.category");
+            pstmt = conn.prepareStatement(sql1);
+            pstmt.setString(1, shopper_id);
+            pstmt.setInt(2, category_id);
+            rs = pstmt.executeQuery();
+
+            if (rs.next())
+            {
+                cat = rs.getInt("catqty");
+            }
+
+        }
+        catch (Exception e)
+        {
+            LOGGER.warning("ERROR Execute DAO - Function getCheckCat");
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (rs != null)
+                    rs.close();
+                if (pstmt != null)
+                    pstmt.close();
+                if (conn != null)
+                    conn.close();
+            }
+            catch (SQLException sqlE)
+            {
+                sqlE.getStackTrace();
+            }
+        }
+
+        return cat;
+    }
+    
     public int getHoldDays()
     {
         int maxDiscount = 0;

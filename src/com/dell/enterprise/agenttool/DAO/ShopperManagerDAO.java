@@ -31,6 +31,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -391,8 +392,10 @@ public class ShopperManagerDAO
             cstmt.setString(1, shopper_id);
             cstmt.setInt(2, page);
             cstmt.setInt(3, 5);
-            cstmt.registerOutParameter(4, java.sql.Types.INTEGER);
+            cstmt.registerOutParameter("TotalRecord", java.sql.Types.INTEGER);
+            System.out.println("STMT WRONG:" + cstmt);
             rs = cstmt.executeQuery();
+            System.out.println("OK");
             while (rs.next())
             {
                 note = new Note();
@@ -412,7 +415,7 @@ public class ShopperManagerDAO
 
         catch (Exception e)
         {
-            // LOGGER.warning("ERROR Execute DAO");
+             LOGGER.warning("ERROR Execute DAO searchNotes");
             e.printStackTrace();
         }
         finally
@@ -428,7 +431,7 @@ public class ShopperManagerDAO
             }
             catch (SQLException sqlE)
             {
-                // LOGGER.info("SQL error");
+                 LOGGER.info("SQL error");
                 sqlE.printStackTrace();
             }
         }
@@ -578,6 +581,7 @@ public class ShopperManagerDAO
             String sql = daoUtils.getString("shopper.view.receipts");
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, shopperId);
+            System.out.println("getViewReceipts:" + pstmt);
             rs = pstmt.executeQuery();
             while (rs.next())
             {
@@ -593,7 +597,7 @@ public class ShopperManagerDAO
         }
         catch (Exception e)
         {
-
+        	e.printStackTrace();
         }
         finally
         {
@@ -637,22 +641,36 @@ public class ShopperManagerDAO
             cstmt.setInt(2, page);
             cstmt.setInt(3, 40);
             cstmt.registerOutParameter(4, java.sql.Types.INTEGER);
+            System.out.println("getViewTotal uspGetShopperViewReceipts storedprocedure:" + cstmt);
             rs = cstmt.executeQuery();
+            int count = 0;
+            
+            ResultSetMetaData rsmd = rs.getMetaData();
+            for (int i = 0; i < rsmd.getColumnCount(); i++) {
+				System.out.println("FIELD NAME["+i+"]:" + rsmd.getColumnName(i + 1));
+			}
+            
             while (rs.next())
             {
+            	count++;
+            	System.out.println("GO HERE");
                 view = new ShopperViewReceipts();
-                view.setRowNumber(rs.getInt("RowNumber"));
+                view.setRowNumber(count);
+                
                 view.setCreatedDate(Constants.convertValueEmpty(rs.getString("createdDate")));
                 view.setTotal_total(Constants.convertValueEmpty(rs.getString("total_total")));
                 view.setOrderNumber(Constants.convertValueEmpty(rs.getString("OrderNumber")));
                 viewReceipts.add(view);
 
             }
-            this.setTotalRecord(cstmt.getInt(4));
+            int total = cstmt.getInt(4); 
+            System.out.println("Value total: " + String.valueOf(total));
+            
+            this.setTotalRecord(total);
         }
         catch (Exception e)
         {
-
+        	e.printStackTrace();
         }
         finally
         {
@@ -1550,9 +1568,17 @@ public class ShopperManagerDAO
             rs = pstmt.executeQuery();
             while (rs.next())
             {
+            	String subject = rs.getString("subject");
+            	String orderBy = rs.getString("orderBy");
                 note = new Note();
-                note.setSubject(rs.getString("subject"));
-                note.setOrderBy(rs.getString("orderBy"));
+                if (subject != null){
+                	note.setSubject(subject.trim());
+                }
+                if (orderBy != null){
+                	note.setOrderBy(orderBy);
+                }
+//                note.setSubject(rs.getString("subject"));
+//                note.setOrderBy(rs.getString("orderBy"));
                 notes.add(note);
             }
 
@@ -1595,13 +1621,27 @@ public class ShopperManagerDAO
             conn = daoUtil.getConnection();
             String sql1 = daoUtil.getString("shopper.select.group.subject");
             pstmt = conn.prepareStatement(sql1);
+            
+            System.out.println("selectGroupSubject:" + pstmt);            
             rs = pstmt.executeQuery();
             while (rs.next())
             {
                 note = new Note();
-                note.setSubject(rs.getString("subject"));
-                note.setNoteType(rs.getString("noteType"));
-                note.setIndexKey(rs.getString("indexKey"));
+                String subject = rs.getString("subject");
+                if (subject != null){
+                    note.setSubject(subject.trim());    
+                }
+
+                String noteType = rs.getString("noteType");
+                if (noteType != null){
+                    note.setNoteType(noteType.trim());    
+                }
+
+                String indexKey = rs.getString("indexKey");
+                if (indexKey != null){
+                    note.setIndexKey(indexKey.trim());    
+                }
+
                 notes.add(note);
             }
 
@@ -1683,9 +1723,20 @@ public class ShopperManagerDAO
         Boolean flag = false;
         try
         {
-            //Logger.info("Execute CustomerDAO - Function performCheckout ");            
+            System.out.println("Execute CustomerDAO - Function performCheckout ");            
             DAOUtils daoUtil = DAOUtils.getInstance();
             conn = daoUtil.getConnection();
+            
+            
+            String sqlNextId = daoUtil.getString("shoppert.autoincrement.contactlog.value");
+            pstmt = conn.prepareStatement(sqlNextId);
+            
+            ResultSet rs = pstmt.executeQuery();
+            double nextId = -1;
+            while (rs.next()){
+            	nextId = rs.getDouble(1);
+            }
+            
             String sql1 = daoUtil.getString("shoppert.insert.note");
             pstmt = conn.prepareStatement(sql1);
             pstmt.setString(1, note.getShopper_id());
@@ -1695,8 +1746,9 @@ public class ShopperManagerDAO
             pstmt.setString(5, note.getNotes());
             pstmt.setString(6, note.getOrderNumber());
             pstmt.setInt(7, Integer.valueOf(note.getIndexKey()));
+            pstmt.setDouble(8, nextId);
+            
             pstmt.executeUpdate();
-
             flag = true;
         }
         catch (Exception e)
